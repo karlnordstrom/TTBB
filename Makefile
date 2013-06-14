@@ -1,5 +1,4 @@
 ## Makefile for ROOT stuff
-## BLARGH
 ## Since I'm only using boost I'm okay with only an
 ## include, if you want something more fancy you'll
 ## need to define MY_LIBS
@@ -12,3 +11,6 @@ ROOT_LIBS=$(shell root-config --libs)
 
 matchjets: matchjets.cxx
 	g++ -o matchjets matchjets.cxx $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
+
+matchleptons: matchleptons.cxx
+	g++ -o matchleptons matchleptons.cxx $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)

@@ -1,4 +1,7 @@
 /// MACRO FOR ANALYSING RECO AND TRUTH JETS
+/// Note that everything is stored in MeV in the data files,
+/// but I convert to GeV when building my four momentums --
+/// I'll come up with a nicer way to do this later.
 
 #include <Math/Vector4D.h>
 #include <TLorentzVector.h>
@@ -159,7 +162,6 @@ int main() {
 
     TH2D *pT_truth_vs_reco = new TH2D("pT_truth_vs_reco", "pT_truth_vs_reco (x axis is truth)", 25, 0, 250, 25, 0, 250);
 
-
 //Read out all events
 
     Int_t event_match = 0; //number of events matched by event number
@@ -204,30 +206,32 @@ int main() {
 
             jet_match_local = 0;
 
-	    // Only interested in the 6 leading reco jets
+            // Only interested in the 6 leading reco jets
             if(reco_jets.size() > 6) {
                 reco_jets.erase(reco_jets.begin() + 6, reco_jets.end());
             }
 
-	    foreach(TLorentzVector tjet, truth_jets) {
-		if( tjet.Pt() > 20 ){jet_truth_total++;} // only count truth jets over 20GeV
-	    }
+            foreach(TLorentzVector tjet, truth_jets) {
+                if( tjet.Pt() > 20 ) {
+                    jet_truth_total++;   // only count truth jets over 20GeV
+                }
+            }
 
-	    //This is all just to map how many reco jets get matched to
-	    //each truth jet. A bit messy atm.
-	    vector<int> mapped;
-	    mapped.resize(truth_jets.size());
+            //This is all just to map how many reco jets get matched to
+            //each truth jet. A bit messy atm.
+            vector<int> mapped;
+            mapped.resize(truth_jets.size());
 
             foreach(TLorentzVector rjet, reco_jets) {
 
-		int index = -1;
+                int index = -1;
 
                 foreach(TLorentzVector tjet, truth_jets) {
-	
-		    index++;
 
-                    if( areSimilar( tjet.Pt(), tjet.Pt(), 50) && tjet.DeltaR(rjet) < 0.2 ) {
-			mapped[index]++;
+                    index++;
+
+                    if( areSimilar( tjet.Pt(), tjet.Pt(), 50) && tjet.DeltaR(rjet) < 0.2 ) { //matched!
+                        mapped[index]++;
                         jet_match_local++;
                         dpT_jet->Fill(rjet.Pt() - tjet.Pt());
                         dR_jet->Fill(tjet.DeltaR(rjet));
@@ -238,9 +242,9 @@ int main() {
                 }
             }
 
-	    foreach(int n_matches, mapped) {
-	    	n_matches_truth->Fill(n_matches);
-	    }
+            foreach(int n_matches, mapped) {
+                n_matches_truth->Fill(n_matches);
+            }
 
             jet_match_total += jet_match_local;
             jet_reco_total += reco_jets.size();
@@ -265,9 +269,6 @@ int main() {
 
 
     recoFile->Close();
-
-
-
 
     outputFile->Write();
     outputFile->Close();
