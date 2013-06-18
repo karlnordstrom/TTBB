@@ -1,6 +1,7 @@
 #include <Utils.hh>
 #include <FourMomentum.hh>
 #include <fstream>
+#include <string.h>
 
 using namespace std;
 
@@ -16,9 +17,6 @@ int main(int argc,char *argv[]) {
     TChain *truthTree = new TChain("truth");
     //truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._*.pool.root");
     truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._000001.pool.root");
-
-    TFile *outputFile = new TFile("~/output/comparedata.ratoioot", "RECREATE");
-    outputFile->cd(); // WHY IS THIS NEEDED ROOT IS SO CONFUSING
 
 //Set up the addresses for reading out the branches
 
@@ -62,9 +60,6 @@ int main(int argc,char *argv[]) {
     truthTree->SetBranchAddress("jet_AntiKt4TruthJets_phi",&jet_phi_truth);
     truthTree->SetBranchAddress("jet_AntiKt4TruthJets_E",&jet_E_truth);
 
-    ofstream myfile;
-    myfile.open (argv[2]);
-
     Int_t eventIndex;
     Int_t num_of_events = 0;
 
@@ -80,6 +75,16 @@ int main(int argc,char *argv[]) {
 
             assert((int)EventNumber_truth == (int)EventNumber_reco); // extra assert to kill any bullshit
             num_of_events++;
+
+            ofstream myfile;
+
+            char number[10];
+            sprintf(number, "%d", (int)EventNumber_truth);
+
+            char name[80];
+            strcpy (name, argv[1]);
+            strcat (name, number);
+            myfile.open(name);
 
             //Need to create vectors because reco jets stored as C arrays (YAY)
             vector<float> pts, etas, phis, Es;
@@ -99,28 +104,23 @@ int main(int argc,char *argv[]) {
             }
 
             foreach(FourMomentum rjet, reco_jets) {
-                if(atoi(argv[1]) == 0)myfile << "R" << "  " << "-" << " " << 3 << "  " << rjet.pt() << " " << rjet.eta() << "    " << rjet.phi() << "    " << rjet.energy() << "  " << 0 <<"\n";
-                else myfile << EventNumber_reco << "    0   " << rjet.pt() << " " << rjet.eta() << "    " << rjet.phi() << "    " << rjet.energy() <<"\n";
+                myfile << "R" << "  " << "-" << " " << 3 << "  " << rjet.pt() << " " << rjet.eta() << "    " << rjet.phi() << "    " << rjet.energy() << "  " << 0 <<"\n";
             }
 
             foreach(FourMomentum tjet, truth_jets) {
-                if(atoi(argv[1]) == 0)myfile << "T3" << "  " << "-" << "    " << 2 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
-                else myfile << EventNumber_truth << "    1   " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() <<"\n";
+                if(tjet.pt() < 20)myfile << "T3" << "  " << "-" << "    " << 1 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
+                else if(abs(tjet.eta()) > 2.25)myfile << "T3" << "  " << "-" << "    " << 2 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
+                else myfile << "T3" << "  " << "-" << "    " << 0 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
             }
             myfile << "\n";
+            myfile.close();
+            cout << "Event: " << EventNumber_truth << " printed to file: " << name << endl;
+            break;
         }
-        if(num_of_events == atoi(argv[1]) && atoi(argv[1]) != 0){cout << num_of_events << " printed to file: " << argv[2] << endl; break;}
-        if(atoi(argv[1]) == 0 && num_of_events == 1){cout << "Event: " << EventNumber_truth << " printed to file: " << argv[2] << endl; break;}
     }
 
     //Finalize
-
-    myfile.close();
-
     recoFile->Close();
-
-    outputFile->Write();
-    outputFile->Close();
 
     return 0;
 

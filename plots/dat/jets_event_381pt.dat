@@ -1,0 +1,88 @@
+# BEGIN PLOT
+TITLE=jets_event_381
+Legend=1
+LegendYPos=1
+LegendXPos=0
+LegendOnly=lepton1 lepton higgs1 higgs hadron1  hadron
+YMin=-3.141592
+YMax=3.141592
+XMin=-4
+XMax=4
+LogY=0
+DrawOnly=lines circles crosses neutrino tags dummy
+XLabel=$\eta$
+YLabel=$\phi$
+XMinorTickMarks=0
+YMinorTickMarks=0
+XMajorTickMarks=10
+YMajorTickMarks=10
+DrawSpecialFirst=1
+ColorSeries={rgb}{last}[rgb]{1,0.97,0.94}[rgb]{0.6,0.0,0.05}
+# END PLOT
+
+# BEGIN SPECIAL lines 
+\psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
+\psline[linewidth=0.4pt,linecolor=black,linestyle=dashed]\physicscoor( -4,0)\physicscoor( 4,0)
+\psline[linewidth=0.4pt,linecolor=black,linestyle=dashed]\physicscoor( 0,-3.14159)\physicscoor( 0,3.14159)
+\fontsize{8pt}{8.1pt}\selectfont
+\uput{4pt}[180]{0}\physicscoor(-2.65,2.5){+ = truth}
+\uput{4pt}[180]{0}\physicscoor(-2.9,2.8){$\sim$ $p_T$}
+\endpsclip
+# END SPECIAL
+
+# BEGIN SPECIAL circles
+\psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
+\fontsize{8pt}{8.1pt}\selectfont
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(0.374542,-2.29564){1.5}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(0.253007,1.07204){1.08858}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(-1.23715,0.68515){0.646312}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(-1.04102,2.55304){0.339755}
+\endpsclip
+# END SPECIAL
+
+# BEGIN SPECIAL crosses
+\psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
+\fontsize{8pt}{8.1pt}\selectfont
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.07296,-2.28105)\physicscoor( 1.78839,-2.28105)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( 0.357715,-4.0694)\physicscoor( 0.357715,-0.492704)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -0.811257,1.07327)\physicscoor( 1.29084,1.07327)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( 0.239792,-0.240541)\physicscoor( 0.239792,2.38708)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.92737,0.67199)\physicscoor( -0.528213,0.67199)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.22779,-0.202481)\physicscoor( -1.22779,1.54646)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.16942,-1.01223)\physicscoor( -0.375397,-1.01223)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -0.77241,-1.5085)\physicscoor( -0.77241,-0.515964)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.36179,2.61654)\physicscoor( -0.684546,2.61654)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.02317,2.19326)\physicscoor( -1.02317,3.03982)
+\psline[linewidth=1pt,linecolor=blue,linestyle=dashed]\physicscoor( 0.872428,-1.25345)\physicscoor( 1.20347,-1.25345)
+\psline[linewidth=1pt,linecolor=blue,linestyle=dashed]\physicscoor( 1.03795,-1.46035)\physicscoor( 1.03795,-1.04655)
+\psline[linewidth=1pt,linecolor=blue,linestyle=dashed]\physicscoor( -1.51041,-2.13429)\physicscoor( -1.27127,-2.13429)
+\psline[linewidth=1pt,linecolor=blue,linestyle=dashed]\physicscoor( -1.39084,-2.28375)\physicscoor( -1.39084,-1.98483)
+\endpsclip
+# END SPECIAL
+
+# BEGIN SPECIAL tags
+\psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
+\fontsize{8pt}{8.1pt}\selectfont
+\rput[Br]\physicscoor(0.344542,-2.14564){-}
+\rput[Br]\physicscoor(0.223007,1.22204){-}
+\rput[Br]\physicscoor(-1.26715,0.83515){-}
+\rput[Br]\physicscoor(-1.07102,2.70304){-}
+\rput[Bl]\physicscoor(0.387715,-2.58105){-}
+\rput[Bl]\physicscoor(0.269792,0.77327){-}
+\rput[Bl]\physicscoor(-1.19779,0.37199){-}
+\rput[Bl]\physicscoor(-0.74241,-1.31223){-}
+\rput[Bl]\physicscoor(-0.99317,2.31654){-}
+\rput[Bl]\physicscoor(1.06795,-1.55345){-}
+\rput[Bl]\physicscoor(-1.36084,-2.43429){-}
+\endpsclip
+# END SPECIAL
+
+# BEGIN HISTOGRAM dummy
+LineColor=black
+LineWidth=0pt
+LineOpacity=0
+LineStyle=none
+ErrorBars=0
+PolyMarker=
+Title=dummy
+0 0 0 0

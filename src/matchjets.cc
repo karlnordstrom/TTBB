@@ -4,6 +4,7 @@
 /// I'll come up with a nicer way to do this later.
 
 #include <Utils.hh>
+#include <FourMomentum.hh>
 
 using namespace std;
 
@@ -137,7 +138,7 @@ int main() {
 
             /// Need to upgrade selector to be able to do this nicely!
             foreach(FourMomentum tjet, truth_jets) {
-                if( tjet.pt() > 20 ) {
+                if( tjet.pt() > 20 && abs(tjet.eta()) < 2.45 ) {
                     jet_truth_total++;   // only count truth jets over 20GeV
                 }
             }

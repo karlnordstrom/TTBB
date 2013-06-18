@@ -11,7 +11,7 @@ THIS_LIB=-L/afs/phas.gla.ac.uk/user/k/knordstrom/code/TTBB/lib -lTTBB
 ROOT_INCS=$(shell root-config --cflags)
 ROOT_LIBS=$(shell root-config --libs)
 
-all: matchjets matchleptons dumpjets
+all: matchjets matchleptons dumpjets createjetplot
 
 matchjets: ./src/matchjets.cc library
 	@echo "Building matchjets..."
@@ -24,6 +24,10 @@ matchleptons: ./src/matchleptons.cc library
 dumpjets: ./src/dumpjets.cc library
 	@echo "Building dumpjets..."
 	@g++ $(FLAGS) -o dumpjets ./src/dumpjets.cc $(MY_INCS) $(MY_LIBS) $(THIS_LIB) $(ROOT_INCS) $(ROOT_LIBS)
+
+createjetplot: ./src/createjetplot.cc library
+	@echo "Building createjetplot..."
+	@g++ $(FLAGS) -o createjetplot ./src/createjetplot.cc $(MY_INCS) $(MY_LIBS) $(THIS_LIB) $(ROOT_INCS) $(ROOT_LIBS)
 
 library: Utils.o FourMomentum.o
 	@echo "Linking library..."
@@ -44,5 +48,6 @@ clean:
 	@rm matchjets || :
 	@rm matchleptons || :
 	@rm dumpjets || :
+	@rm createjetplot || :
 	@rm ./lib/libTTBB.so || :
 	@echo "Removed binaries and library."

@@ -12,18 +12,12 @@
 #include <TProfile.h>
 #include <TChain.h>
 
-#include <fstream>
 #include <cmath>
 #include <vector>
 #include <iostream>
-#include <exception>
 #include <boost/foreach.hpp>
-#include <vector>
-
 #include <exception>
 #include <stdexcept>
-
-#include <FourMomentum.hh>
 
 #define foreach BOOST_FOREACH //just to clean up the loops a bit
 
