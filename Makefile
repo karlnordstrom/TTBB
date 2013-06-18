@@ -11,19 +11,21 @@ THIS_LIB=-L/afs/phas.gla.ac.uk/user/k/knordstrom/code/TTBB/lib -lTTBB
 ROOT_INCS=$(shell root-config --cflags)
 ROOT_LIBS=$(shell root-config --libs)
 
-matchjets: ./src/matchjets.cxx library
+all: matchjets matchleptons dumpjets
+
+matchjets: ./src/matchjets.cc library
 	@echo "Building matchjets..."
-	@g++ $(FLAGS) -o matchjets ./src/matchjets.cxx $(MY_INCS) $(MY_LIBS) $(THIS_LIB) $(ROOT_INCS) $(ROOT_LIBS)
+	@g++ $(FLAGS) -o matchjets ./src/matchjets.cc $(MY_INCS) $(MY_LIBS) $(THIS_LIB) $(ROOT_INCS) $(ROOT_LIBS)
 
-matchleptons: ./src/matchleptons.cxx library
+matchleptons: ./src/matchleptons.cc library
 	@echo "Building matchleptons..."
-	@g++ $(FLAGS) -o matchleptons ./src/matchleptons.cxx $(MY_INCS) $(MY_LIBS) $(THIS_LIB) $(ROOT_INCS) $(ROOT_LIBS)
+	@g++ $(FLAGS) -o matchleptons ./src/matchleptons.cc $(MY_INCS) $(MY_LIBS) $(THIS_LIB) $(ROOT_INCS) $(ROOT_LIBS)
 
-dumpjets: ./src/dumpjets.cxx library
+dumpjets: ./src/dumpjets.cc library
 	@echo "Building dumpjets..."
-	@g++ $(FLAGS) -o dumpjets ./src/dumpjets.cxx $(MY_INCS) $(MY_LIBS) $(THIS_LIB) $(ROOT_INCS) $(ROOT_LIBS)
+	@g++ $(FLAGS) -o dumpjets ./src/dumpjets.cc $(MY_INCS) $(MY_LIBS) $(THIS_LIB) $(ROOT_INCS) $(ROOT_LIBS)
 
-library: ./src/library.cc ./include/library.h
+library: ./src/library.cc ./include/library.hh
 	@echo "Building library..."
 	@g++ $(FLAGS) -c -fPIC ./src/library.cc -o library.o $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
 	@echo "Linking library..."

@@ -3,7 +3,7 @@
 /// but I convert to GeV when building my four momentums --
 /// I'll come up with a nicer way to do this later.
 
-#include <library.h>
+#include <library.hh>
 
 using namespace std;
 
