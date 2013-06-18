@@ -3,7 +3,7 @@
 /// but I convert to GeV when building my four momentums --
 /// I'll come up with a nicer way to do this later.
 
-#include "library.h"
+#include <library.h>
 
 using namespace std;
 
@@ -20,8 +20,8 @@ int main() {
     TTree *recoTree = (TTree*)recoFile->Get("mini");
 
     TChain *truthTree = new TChain("truth");
-    truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._*.pool.root");
-    //truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._000001.pool.root");
+    //truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._*.pool.root");
+    truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._000001.pool.root");
 
     TFile *outputFile = new TFile("~/output/comparedata.root", "RECREATE");
     outputFile->cd(); // WHY IS THIS NEEDED ROOT IS SO CONFUSING
@@ -78,8 +78,10 @@ int main() {
     TH1D *dR_jet = new TH1D("dR_jet", "dR_jet", 30, 0, 0.3);
     TH1D *dpT_jet_ave = new TH1D("dpT_jet_ave", "dpT_jet_ave", 25, 0, 250);
     TH1D *n_matches_truth = new TH1D("n_matches_truth", "number of reco jets matched to truth jet", 5, 0, 5);
-
     TH2D *pT_truth_vs_reco = new TH2D("pT_truth_vs_reco", "pT_truth_vs_reco (x axis is truth)", 25, 0, 250, 25, 0, 250);
+
+// Helpers for histograms
+    AverageHisto average_dpt(dpT_jet_ave);
 
 //Read out all events
 
@@ -89,7 +91,10 @@ int main() {
     Int_t jet_reco_total = 0; //total number of reco jets
     Int_t jet_truth_total = 0; //total number of truth jets
 
-    AverageHisto average_dpt(25, 0, 250); // initialise helper for average histo
+
+    Selector CutSimple;
+    CutSimple.deltaRCut(0.2);
+    CutSimple.ptCut(50);
 
     Int_t eventIndex;
 
@@ -120,8 +125,8 @@ int main() {
                 Es.push_back(jet_E_reco[rjet]);
             }
 
-            vector<TLorentzVector> reco_jets = makeVectors(pts, etas, phis, Es);
-            vector<TLorentzVector> truth_jets = makeVectors((*jet_pt_truth), (*jet_eta_truth), (*jet_phi_truth), (*jet_E_truth) );
+            vector<FourMomentum> reco_jets = makeVectors(pts, etas, phis, Es);
+            vector<FourMomentum> truth_jets = makeVectors((*jet_pt_truth), (*jet_eta_truth), (*jet_phi_truth), (*jet_E_truth) );
 
             jet_match_local = 0;
 
@@ -130,8 +135,9 @@ int main() {
                 reco_jets.erase(reco_jets.begin() + 6, reco_jets.end());
             }
 
-            foreach(TLorentzVector tjet, truth_jets) {
-                if( tjet.Pt() > 20 ) {
+            /// Need to upgrade selector to be able to do this nicely!
+            foreach(FourMomentum tjet, truth_jets) {
+                if( tjet.pt() > 20 ) {
                     jet_truth_total++;   // only count truth jets over 20GeV
                 }
             }
@@ -141,21 +147,21 @@ int main() {
             vector<int> mapped;
             mapped.resize(truth_jets.size());
 
-            foreach(TLorentzVector rjet, reco_jets) {
+            foreach(FourMomentum rjet, reco_jets) {
 
                 int index = -1;
 
-                foreach(TLorentzVector tjet, truth_jets) {
+                foreach(FourMomentum tjet, truth_jets) {
 
                     index++;
 
-                    if( areSimilar( tjet.Pt(), tjet.Pt(), 50) && tjet.DeltaR(rjet) < 0.2 ) { //matched!
+                    if( CutSimple.pass(tjet, rjet) ) { //matched!
                         mapped[index]++;
                         jet_match_local++;
-                        dpT_jet->Fill(rjet.Pt() - tjet.Pt());
-                        dR_jet->Fill(tjet.DeltaR(rjet));
-                        average_dpt.add(tjet.Pt(), abs(rjet.Pt() - tjet.Pt()));
-                        pT_truth_vs_reco->Fill(tjet.Pt(), rjet.Pt());
+                        dpT_jet->Fill(rjet.deltaPt(tjet));
+                        dR_jet->Fill(tjet.deltaR(rjet));
+                        average_dpt.add(tjet.pt(), abs(rjet.deltaPt(tjet)));
+                        pT_truth_vs_reco->Fill(tjet.pt(), rjet.pt());
                         break;
                     }
                 }
@@ -175,7 +181,7 @@ int main() {
 
     }
 
-    average_dpt.fillHisto(dpT_jet_ave);
+    average_dpt.fillHisto();
 
     cout << "Number of matching events: " << event_match << endl;
     cout << "Number of total jets matched (reco -> truth): " << jet_match_total << "/" << jet_reco_total << endl;
