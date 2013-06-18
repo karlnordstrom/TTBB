@@ -25,14 +25,20 @@ dumpjets: ./src/dumpjets.cc library
 	@echo "Building dumpjets..."
 	@g++ $(FLAGS) -o dumpjets ./src/dumpjets.cc $(MY_INCS) $(MY_LIBS) $(THIS_LIB) $(ROOT_INCS) $(ROOT_LIBS)
 
-library: ./src/library.cc ./include/library.hh
-	@echo "Building library..."
-	@g++ $(FLAGS) -c -fPIC ./src/library.cc -o library.o $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
+library: Utils.o FourMomentum.o
 	@echo "Linking library..."
-	@g++ -shared -Wl -o ./lib/libTTBB.so library.o -lc $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
+	@g++ -shared -Wl -o ./lib/libTTBB.so library.o FourMomentum.o -lc $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
 	@rm library.o
+	@rm FourMomentum.o
 	@export LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):/afs/phas.gla.ac.uk/user/k/knordstrom/code/TTBB/lib
-	@echo "All done!"
+
+FourMomentum.o: ./src/FourMomentum.cc ./include/FourMomentum.hh
+	@echo "Building FourMomentum..."
+	@g++ $(FLAGS) -c -fPIC ./src/FourMomentum.cc -o FourMomentum.o $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
+
+Utils.o: ./src/Utils.cc ./include/Utils.hh
+	@echo "Building Utils..."
+	@g++ $(FLAGS) -c -fPIC ./src/Utils.cc -o library.o $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
 
 clean:
 	@rm matchjets || :
