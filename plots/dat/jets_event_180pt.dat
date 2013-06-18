@@ -33,6 +33,7 @@ ColorSeries={rgb}{last}[rgb]{1,0.97,0.94}[rgb]{0.6,0.0,0.05}
 # BEGIN SPECIAL circles
 \psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
 \fontsize{8pt}{8.1pt}\selectfont
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=green,opacity=0.5]\physicscoor(-0.812639,3.03533){0.748386}
 \pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(-0.038416,2.02045){1.33698}
 \pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(-0.196323,-2.52723){0.899983}
 \pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(-0.576534,0.175995){0.579688}
@@ -67,6 +68,7 @@ ColorSeries={rgb}{last}[rgb]{1,0.97,0.94}[rgb]{0.6,0.0,0.05}
 # BEGIN SPECIAL tags
 \psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
 \fontsize{8pt}{8.1pt}\selectfont
+\rput[Br]\physicscoor(-0.842639,3.18533){-}
 \rput[Br]\physicscoor(-0.068416,2.17045){-}
 \rput[Br]\physicscoor(-0.226323,-2.37723){-}
 \rput[Br]\physicscoor(-0.606534,0.325995){-}

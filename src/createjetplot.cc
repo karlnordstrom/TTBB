@@ -119,6 +119,8 @@ int main(int argc,char *argv[]) {
                 reco_jets.erase(reco_jets.begin() + 6, reco_jets.end());
             }
 
+            myfile << "R" << "  " << "-" << " " << 0 << "  " << rlep.pt() << " " << rlep.eta() << "    " << rlep.phi() << "    " << rlep.energy() << "  " << 0 <<"\n";
+
             foreach(FourMomentum rjet, reco_jets) {
                 myfile << "R" << "  " << "-" << " " << 3 << "  " << rjet.pt() << " " << rjet.eta() << "    " << rjet.phi() << "    " << rjet.energy() << "  " << 0 <<"\n";
             }
