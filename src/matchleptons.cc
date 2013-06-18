@@ -87,7 +87,7 @@ int main() {
             assert((int)EventNumber_truth == (int)EventNumber_reco);
             event_match++; //event matched by event number
 
-            /// Create TLorentzVectors for convenience
+            /// Create FourMomentum for convenience
             FourMomentum rlep = makeVector(lep_pt_reco, lep_eta_reco, lep_phi_reco, lep_E_reco);
             vector<FourMomentum> tparts = makeVectors((*part_pt_truth), (*part_eta_truth), (*part_phi_truth), (*part_E_truth), (*pdgId_truth), (*status_truth));
 

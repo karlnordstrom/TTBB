@@ -36,6 +36,7 @@ int main() {
     Int_t  EventNumber_reco;
 
     Float_t jet_pt_reco[40], jet_eta_reco[40], jet_phi_reco[40], jet_E_reco[40];
+    Float_t lep_pt_reco, lep_eta_reco, lep_phi_reco, lep_E_reco;
 
     vector<float> *jet_pt_truth = 0, *jet_eta_truth = 0, *jet_phi_truth = 0, *jet_E_truth = 0;
 
@@ -57,6 +58,17 @@ int main() {
     recoTree->SetBranchAddress("jet_phi",&jet_phi_reco);
     recoTree->SetBranchAddress("jet_E",&jet_E_reco);
     recoTree->SetBranchAddress("jet_n",&jet_n);
+
+    recoTree->SetBranchStatus("lep_pt", 1);
+    recoTree->SetBranchStatus("lep_eta", 1);
+    recoTree->SetBranchStatus("lep_phi", 1);
+    recoTree->SetBranchStatus("lep_E", 1);
+
+    recoTree->SetBranchAddress("lep_pt",&lep_pt_reco);
+    recoTree->SetBranchAddress("lep_eta",&lep_eta_reco);
+    recoTree->SetBranchAddress("lep_phi",&lep_phi_reco);
+    recoTree->SetBranchAddress("lep_E",&lep_E_reco);
+
 
     truthTree->SetBranchStatus("*", 0);
 
@@ -95,7 +107,10 @@ int main() {
 
     Selector CutSimple;
     CutSimple.deltaRCut(0.2);
-    CutSimple.ptCut(50);
+    CutSimple.ptCut(10, 0.2);
+
+    Selector LeptonCut;
+    LeptonCut.deltaRCut(0.2);
 
     Int_t eventIndex;
 
@@ -128,6 +143,7 @@ int main() {
 
             vector<FourMomentum> reco_jets = makeVectors(pts, etas, phis, Es);
             vector<FourMomentum> truth_jets = makeVectors((*jet_pt_truth), (*jet_eta_truth), (*jet_phi_truth), (*jet_E_truth) );
+            FourMomentum rlep = makeVector(lep_pt_reco, lep_eta_reco, lep_phi_reco, lep_E_reco);
 
             jet_match_local = 0;
 
@@ -138,7 +154,7 @@ int main() {
 
             /// Need to upgrade selector to be able to do this nicely!
             foreach(FourMomentum tjet, truth_jets) {
-                if( tjet.pt() > 20 && abs(tjet.eta()) < 2.45 ) {
+                if( tjet.pt() > 20 && abs(tjet.eta()) < 2.45 && !LeptonCut.pass(tjet, rlep)) {
                     jet_truth_total++;   // only count truth jets over 20GeV
                 }
             }

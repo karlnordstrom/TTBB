@@ -24,6 +24,7 @@ int main(int argc,char *argv[]) {
     UInt_t jet_n;
     Int_t  EventNumber_reco;
     Float_t jet_pt_reco[40], jet_eta_reco[40], jet_phi_reco[40], jet_E_reco[40];
+    Float_t lep_pt_reco, lep_eta_reco, lep_phi_reco, lep_E_reco;
     vector<float> *jet_pt_truth = 0, *jet_eta_truth = 0, *jet_phi_truth = 0, *jet_E_truth = 0;
 
 //Associate the addresses with the TTree
@@ -45,6 +46,17 @@ int main(int argc,char *argv[]) {
     recoTree->SetBranchAddress("jet_E",&jet_E_reco);
     recoTree->SetBranchAddress("jet_n",&jet_n);
 
+    recoTree->SetBranchStatus("lep_pt", 1);
+    recoTree->SetBranchStatus("lep_eta", 1);
+    recoTree->SetBranchStatus("lep_phi", 1);
+    recoTree->SetBranchStatus("lep_E", 1);
+
+    recoTree->SetBranchAddress("lep_pt",&lep_pt_reco);
+    recoTree->SetBranchAddress("lep_eta",&lep_eta_reco);
+    recoTree->SetBranchAddress("lep_phi",&lep_phi_reco);
+    recoTree->SetBranchAddress("lep_E",&lep_E_reco);
+
+
     truthTree->SetBranchStatus("*", 0);
 
     truthTree->SetBranchStatus("EventNumber", 1);
@@ -62,6 +74,9 @@ int main(int argc,char *argv[]) {
 
     Int_t eventIndex;
     Int_t num_of_events = 0;
+
+    Selector LeptonCut;
+    LeptonCut.deltaRCut(0.2);
 
     for ( eventIndex = 0; eventIndex < (Int_t) truthTree->GetEntries(); eventIndex++ ) {
 
@@ -97,6 +112,7 @@ int main(int argc,char *argv[]) {
 
             vector<FourMomentum> reco_jets = makeVectors(pts, etas, phis, Es);
             vector<FourMomentum> truth_jets = makeVectors((*jet_pt_truth), (*jet_eta_truth), (*jet_phi_truth), (*jet_E_truth) );
+            FourMomentum rlep = makeVector(lep_pt_reco, lep_eta_reco, lep_phi_reco, lep_E_reco);
 
             // Only interested in the 6 leading reco jets
             if(reco_jets.size() > 6) {
@@ -110,6 +126,7 @@ int main(int argc,char *argv[]) {
             foreach(FourMomentum tjet, truth_jets) {
                 if(tjet.pt() < 20)myfile << "T3" << "  " << "-" << "    " << 1 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
                 else if(abs(tjet.eta()) > 2.25)myfile << "T3" << "  " << "-" << "    " << 2 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
+                else if(LeptonCut.pass(tjet, rlep))myfile << "T3" << "  " << "-" << "    " << 3 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
                 else myfile << "T3" << "  " << "-" << "    " << 0 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
             }
             myfile << "\n";

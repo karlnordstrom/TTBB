@@ -46,8 +46,8 @@ ColorSeries={rgb}{last}[rgb]{1,0.97,0.94}[rgb]{0.6,0.0,0.05}
 \fontsize{8pt}{8.1pt}\selectfont
 \psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -3.19527,1.29295)\physicscoor( -0.285385,1.29295)
 \psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.74033,-0.525731)\physicscoor( -1.74033,3.11163)
-\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -0.838285,-1.97661)\physicscoor( 1.42986,-1.97661)
-\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( 0.295789,-3.3942)\physicscoor( 0.295789,-0.559017)
+\psline[linewidth=1pt,linecolor=black,linestyle=dashed]\physicscoor( -0.838285,-1.97661)\physicscoor( 1.42986,-1.97661)
+\psline[linewidth=1pt,linecolor=black,linestyle=dashed]\physicscoor( 0.295789,-3.3942)\physicscoor( 0.295789,-0.559017)
 \psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.97755,1.15716)\physicscoor( -0.492871,1.15716)
 \psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.23521,0.229236)\physicscoor( -1.23521,2.08508)
 \psline[linewidth=1pt,linecolor=red,linestyle=dashed]\physicscoor( -3.82236,-2.19851)\physicscoor( -2.53984,-2.19851)

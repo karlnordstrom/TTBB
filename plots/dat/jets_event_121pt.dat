@@ -48,8 +48,8 @@ ColorSeries={rgb}{last}[rgb]{1,0.97,0.94}[rgb]{0.6,0.0,0.05}
 \psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( 0.450919,0.31334)\physicscoor( 0.450919,3.0259)
 \psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -2.49183,0.606908)\physicscoor( -1.12533,0.606908)
 \psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.80858,-0.247149)\physicscoor( -1.80858,1.46097)
-\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( 1.0509,1.39071)\physicscoor( 2.28438,1.39071)
-\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( 1.66764,0.619785)\physicscoor( 1.66764,2.16164)
+\psline[linewidth=1pt,linecolor=black,linestyle=dashed]\physicscoor( 1.0509,1.39071)\physicscoor( 2.28438,1.39071)
+\psline[linewidth=1pt,linecolor=black,linestyle=dashed]\physicscoor( 1.66764,0.619785)\physicscoor( 1.66764,2.16164)
 \endpsclip
 # END SPECIAL
 

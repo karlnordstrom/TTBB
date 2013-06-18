@@ -42,8 +42,8 @@ ColorSeries={rgb}{last}[rgb]{1,0.97,0.94}[rgb]{0.6,0.0,0.05}
 # BEGIN SPECIAL crosses
 \psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
 \fontsize{8pt}{8.1pt}\selectfont
-\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -2.75809,0.703726)\physicscoor( 0.24191,0.703726)
-\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.25809,-1.17127)\physicscoor( -1.25809,2.57873)
+\psline[linewidth=1pt,linecolor=black,linestyle=dashed]\physicscoor( -2.75809,0.703726)\physicscoor( 0.24191,0.703726)
+\psline[linewidth=1pt,linecolor=black,linestyle=dashed]\physicscoor( -1.25809,-1.17127)\physicscoor( -1.25809,2.57873)
 \psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -0.229773,-2.69658)\physicscoor( 2.13048,-2.69658)
 \psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( 0.950353,-4.17174)\physicscoor( 0.950353,-1.22142)
 \psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.21982,-1.74166)\physicscoor( 0.884176,-1.74166)
