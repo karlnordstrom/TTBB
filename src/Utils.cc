@@ -2,23 +2,7 @@
 
 using namespace std;
 
-bool areSimilar(float reference, float estimate, float absolute, float relative) {
-    return (estimate > (reference - (absolute + relative * abs(reference)))) && (estimate < (reference + (absolute + relative * abs(reference))));
-}
-
-
-AverageHisto::AverageHisto(TH1D* histo)
-    : _min((float)histo->GetBinLowEdge(1)), _max((float)histo->GetBinLowEdge(histo->GetNbinsX() + 1)), _bin((float)(_max-_min)/(float)histo->GetNbinsX())
-{
-    if(histo->GetNbinsX() < 1)throw Exception("AverageHisto constructed with invalid histogram.");
-    _array.clear();
-    _entries.clear();
-    _averages.clear();
-    _histogram = histo;
-    _array.resize(histo->GetNbinsX());
-    _entries.resize(histo->GetNbinsX());
-    _averages.resize(histo->GetNbinsX());
-}
+namespace Analysis {
 
 AverageHisto::AverageHisto(int array, float min, float max)
     : _min(min), _max(max), _bin((float)(max-min)/array)
@@ -53,18 +37,13 @@ vector<float> AverageHisto::getAverage() {
     return _averages;
 }
 
-void AverageHisto::fillHisto(TH1D* histo) {
+void AverageHisto::fillHisto() {
+    if(_histogram == NULL)throw Exception("Need to construct with pointer to histogram to fill without specifying histogram.");
+    TH1* histo = (TH1*)_histogram;
     setAverage();
     for(int i = 0; i < (int)_averages.size(); i++) {
         histo->Fill(_min + round(i*_bin - 0.49), _averages[i]);
     }
 }
 
-void AverageHisto::fillHisto() {
-    if(_histogram == NULL)throw Exception("Need to construct with pointer to histogram to fill without specifying histogram.");
-    setAverage();
-    for(int i = 0; i < (int)_averages.size(); i++) {
-        _histogram->Fill(_min + round(i*_bin - 0.49), _averages[i]);
-    }
-}
-
+} // end namespace

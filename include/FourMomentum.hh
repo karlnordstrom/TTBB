@@ -5,6 +5,8 @@
 
 using namespace std;
 
+namespace Analysis {
+
 /// My own four momentum class to allow storage of
 /// pdgid and status codes with the vector
 /// (and other stuff in the future maybe)
@@ -14,10 +16,16 @@ class FourMomentum {
 public:
 
     FourMomentum();
-    FourMomentum(TLorentzVector mom, int pdgid, int status);
+    FourMomentum(TLorentzVector& mom, int pdgid, int status);
     ~FourMomentum();
     TLorentzVector momentum() const;
+
+    /// Setters
     void setMomentum(const TLorentzVector& vec);
+    void setPdgId(const int pdgid);
+    void setStatus(const int status);
+
+    /// Accessers
     int pdgId() const;
     int status() const;
     float pt() const;
@@ -45,37 +53,51 @@ private:
 
 /// Helper functions for creating FourMomentum out of
 /// vectors containing the pt, eta, phi, and E values
-vector<FourMomentum> makeVectors(vector<float> pt, vector<float> eta, vector<float> phi, vector<float> E);
 
-FourMomentum makeVector(float pt, float eta, float phi, float E);
+template <class N>
+FourMomentum makeVector(N pt, N eta, N phi, N E) {
+    TLorentzVector vector;
+    vector.SetPtEtaPhiE(pt/1000., eta, phi, E/1000.); // convert to GeV
+    FourMomentum mom(vector, 0, 0);
+    return mom;
+}
 
-vector<FourMomentum> makeVectors(vector<float> pt, vector<float> eta, vector<float> phi, vector<float> E, vector<int> pdgId, vector<int> status);
+template <class N>
+FourMomentum makeVector(N pt, N eta, N phi, N E, int pdgId, int status) {
+    TLorentzVector vector;
+    vector.SetPtEtaPhiE(pt/1000., eta, phi, E/1000.); // convert to GeV
+    FourMomentum mom(vector, pdgId, status);
+    return mom;
+}
 
-FourMomentum makeVector(float pt, float eta, float phi, float E, int pdgId, int status);
+template <class N>
+vector<FourMomentum> makeVectors(vector<N> pt, vector<N> eta, vector<N> phi, vector<N> E, vector<int> pdgId, vector<int> status) {
+    assert(pt.size() == eta.size() && eta.size() == phi.size() && phi.size() == E.size() && E.size() == pdgId.size() && pdgId.size() == status.size());//make sure input makes sense
+    vector<FourMomentum> vectors;
+    TLorentzVector vector;
+    for(unsigned int it = 0; it < pt.size(); it++) {
+        vector.SetPtEtaPhiE(pt[it]/1000., eta[it], phi[it], E[it]/1000.); // convert to GeV
+        FourMomentum mom(vector, pdgId[it], status[it]);
+        vectors.push_back(mom);
+    }
+    return vectors;
+}
 
-/// Helper class for building sets of selections
-/// on FourMomentums to make it easier to make
-/// more complex combinations of selections
-class Selector {
+template<class N>
+vector<FourMomentum> makeVectors(vector<N> pt, vector<N> eta, vector<N> phi, vector<N> E) {
+    assert(pt.size() == eta.size() && eta.size() == phi.size() && phi.size() == E.size());//make sure input makes sense
+    vector<FourMomentum> vectors;
+    TLorentzVector vector;
+    for(unsigned int it = 0; it < pt.size(); it++) {
+        vector.SetPtEtaPhiE(pt[it]/1000., eta[it], phi[it], E[it]/1000.); // convert to GeV
+        FourMomentum mom(vector, 0, 0);
+        vectors.push_back(mom);
+    }
+    return vectors;
+}
 
-public:
 
-    Selector();
-    ~Selector();
-    void ptCut(float absolute, float relative = 0.1);
-    void massCut(float absolute, float relative = 0.1);
-    void deltaRCut(float absolute);
-    void energyCut(float absolute, float relative = 0.1);
-    bool pass(FourMomentum reference, FourMomentum estimate) const;
 
-private:
-
-    float _ptabs, _ptrel;
-    float _massabs, _massrel;
-    float _deltarabs;
-    float _energyabs, _energyrel;
-    bool _ptset, _massset, _deltarset, _energyset;
-};
-
+} // end namespace
 
 #endif

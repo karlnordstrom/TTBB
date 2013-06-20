@@ -2,8 +2,10 @@
 #include <FourMomentum.hh>
 #include <fstream>
 #include <string.h>
+#include <Selectors.hh>
 
 using namespace std;
+using namespace Analysis;
 
 int main(int argc,char *argv[]) {
 
@@ -75,8 +77,14 @@ int main(int argc,char *argv[]) {
     Int_t eventIndex;
     Int_t num_of_events = 0;
 
-    Selector LeptonCut;
-    LeptonCut.deltaRCut(0.2);
+    Comparison LeptonCut;
+    LeptonCut.deltaRWithin(0.2);
+
+    /// This gives the conditions used for matching two jets
+    Comparison MatchJets;
+    MatchJets.deltaRWithin(0.2);
+    MatchJets.ptWithin(10, 0.2);
+
 
     for ( eventIndex = 0; eventIndex < (Int_t) truthTree->GetEntries(); eventIndex++ ) {
 
@@ -119,17 +127,38 @@ int main(int argc,char *argv[]) {
                 reco_jets.erase(reco_jets.begin() + 6, reco_jets.end());
             }
 
-            myfile << "R" << "  " << "-" << " " << 0 << "  " << rlep.pt() << " " << rlep.eta() << "    " << rlep.phi() << "    " << rlep.energy() << "  " << 0 <<"\n";
+            myfile << "R" << "  " << "\\" << "hspace{0pt}" << " " << 0 << "  " << rlep.pt() << " " << rlep.eta() << "    " << rlep.phi() << "    " << rlep.energy() << "  " << 0 <<"\n";
+
+
+            foreach(FourMomentum &rjet, reco_jets) {
+
+                foreach(FourMomentum &tjet, truth_jets) {
+
+                    if( MatchJets.pass(tjet, rjet) ) { //matched!
+                        tjet.setStatus(tjet.status() + 1);
+                        break;
+                    }
+                }
+            }
+
 
             foreach(FourMomentum rjet, reco_jets) {
-                myfile << "R" << "  " << "-" << " " << 3 << "  " << rjet.pt() << " " << rjet.eta() << "    " << rjet.phi() << "    " << rjet.energy() << "  " << 0 <<"\n";
+                myfile << "R" << "  " << "\\" << "hspace{0pt}" << " " << 3 << "  " << rjet.pt() << " " << rjet.eta() << "    " << rjet.phi() << "    " << rjet.energy() << "  " << 0 <<"\n";
             }
 
             foreach(FourMomentum tjet, truth_jets) {
-                if(tjet.pt() < 20)myfile << "T3" << "  " << "-" << "    " << 1 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
-                else if(abs(tjet.eta()) > 2.25)myfile << "T3" << "  " << "-" << "    " << 2 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
-                else if(LeptonCut.pass(tjet, rlep))myfile << "T3" << "  " << "-" << "    " << 3 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
-                else myfile << "T3" << "  " << "-" << "    " << 0 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
+                if(tjet.status() == 0) {
+                    if(tjet.pt() < 20)myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 1 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
+                    else if(abs(tjet.eta()) > 2.45)myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 2 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
+                    else if(LeptonCut.pass(tjet, rlep))myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 3 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
+                    else myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 0 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
+                }
+                else {
+                    if(tjet.pt() < 20)myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 1 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 1 <<"\n";
+                    else if(abs(tjet.eta()) > 2.45)myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 2 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 1 <<"\n";
+                    else if(LeptonCut.pass(tjet, rlep))myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 3 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 1 <<"\n";
+                    else myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 0 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 1 <<"\n";
+                }
             }
             myfile << "\n";
             myfile.close();

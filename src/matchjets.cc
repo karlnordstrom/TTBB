@@ -5,13 +5,17 @@
 
 #include <Utils.hh>
 #include <FourMomentum.hh>
+#include <Selectors.hh>
+#include <fstream>
+#include <string.h>
 
 using namespace std;
+using namespace Analysis;
 
 // Helper class for creating histograms with average values over
 // x range since this apparently is hard.
 
-int main() {
+int main(int argc,char *argv[]) {
 
 
 //Retrieve the TTrees
@@ -103,14 +107,43 @@ int main() {
     Int_t jet_match_total = 0; //reco -> truth jets matched in total
     Int_t jet_reco_total = 0; //total number of reco jets
     Int_t jet_truth_total = 0; //total number of truth jets
+    Int_t truth_lax_pt = 0; // truth matched with lax pt condition
+    Int_t truth_lax_dr = 0; // truth matched with lax dR condition
 
+    /// This gives the conditions used for matching two jets
+    Comparison MatchJets;
+    MatchJets.deltaRWithin(0.2);
+    MatchJets.ptWithin(10, 0.2);
 
-    Selector CutSimple;
-    CutSimple.deltaRCut(0.2);
-    CutSimple.ptCut(10, 0.2);
+    /// Check if within dR=0.2 of the selected reco lepton
+    Comparison LeptonClose;
+    LeptonClose.deltaRWithin(0.2);
 
-    Selector LeptonCut;
-    LeptonCut.deltaRCut(0.2);
+    /// This is to find truth jets which pass all the cuts to consider them
+    /// "matchable" but which can't be matched
+    Selector notMatched;
+    notMatched.pdgIdCut(Equal, 1);
+    notMatched.statusCut(Equal, 0);
+
+    /// This is to find truth jets which are considered matchable
+    /// when combined with the LeptonCut above
+    Selector TruthSelector;
+    TruthSelector.ptCut(More, 20);
+    TruthSelector.etaCut(Less, 2.45);
+    TruthSelector.etaCut(More, -2.45);
+
+    /// This gives the pT conditions used for matching two jets
+    /// with lax dR condition
+    Comparison MatchPt;
+    MatchPt.ptWithin(10, 0.2);
+    MatchPt.deltaRWithin(0.5);
+
+    /// This gives the dR conditions used for matching two jets
+    /// with lax pT condition
+    Comparison MatchdR;
+    MatchdR.deltaRWithin(0.2);
+    MatchdR.ptWithin(50, 0.2);
+
 
     Int_t eventIndex;
 
@@ -129,8 +162,22 @@ int main() {
             assert((int)EventNumber_truth == (int)EventNumber_reco); // extra assert to kill any bullshit
             event_match++; //event matched by event number
 
-            // Uncomment to get continuous confirmation that at least something is working:
-            //cout << "Matched events: " << EventNumber_truth << " and " << EventNumber_reco << endl;
+            Int_t jet_truth_local = 0;
+            Int_t jet_reco_local = 0;
+            Int_t lax_pt_local = 0;
+            Int_t lax_dr_local = 0;
+
+
+            ofstream myfile;
+
+            char number[10];
+            sprintf(number, "%d", (int)EventNumber_truth);
+
+            char name[80];
+            strcpy (name, argv[1]);
+            strcat (name, number);
+            myfile.open(name);
+
 
             //Need to create vectors because reco jets stored as C arrays (YAY)
             vector<float> pts, etas, phis, Es;
@@ -147,33 +194,34 @@ int main() {
 
             jet_match_local = 0;
 
+
             // Only interested in the 6 leading reco jets
             if(reco_jets.size() > 6) {
                 reco_jets.erase(reco_jets.begin() + 6, reco_jets.end());
             }
 
-            /// Need to upgrade selector to be able to do this nicely!
-            foreach(FourMomentum tjet, truth_jets) {
-                if( tjet.pt() > 20 && abs(tjet.eta()) < 2.45 && !LeptonCut.pass(tjet, rlep)) {
-                    jet_truth_total++;   // only count truth jets over 20GeV
+            ///At this point it gets a bit confusing:
+            ///The pdgId (which is set to zero before this by the default constructor)
+            ///is used to track the truth jets which "should" be matched to a reco jet
+            /// -- their pdgId is set to 1. The status is used to track which truth
+            ///jet have been matched to a reco jet (status is how many time they have been
+            ///matched).
+
+            foreach(FourMomentum &tjet, truth_jets) {
+                if( TruthSelector.pass(tjet) && !LeptonClose.pass(tjet, rlep)) {
+                    jet_truth_total++;   // only count these truth jets
+                    jet_truth_local++;
+                    tjet.setPdgId(1); // as above
                 }
             }
 
-            //This is all just to map how many reco jets get matched to
-            //each truth jet. A bit messy atm.
-            vector<int> mapped;
-            mapped.resize(truth_jets.size());
+            /// Need to iterate by reference all the time to be able to change the values
+            foreach(FourMomentum &rjet, reco_jets) {
 
-            foreach(FourMomentum rjet, reco_jets) {
+                foreach(FourMomentum &tjet, truth_jets) {
 
-                int index = -1;
-
-                foreach(FourMomentum tjet, truth_jets) {
-
-                    index++;
-
-                    if( CutSimple.pass(tjet, rjet) ) { //matched!
-                        mapped[index]++;
+                    if( MatchJets.pass(tjet, rjet) ) { //matched!
+                        tjet.setStatus(tjet.status() + 1);
                         jet_match_local++;
                         dpT_jet->Fill(rjet.deltaPt(tjet));
                         dR_jet->Fill(tjet.deltaR(rjet));
@@ -184,14 +232,34 @@ int main() {
                 }
             }
 
-            foreach(int n_matches, mapped) {
-                n_matches_truth->Fill(n_matches);
+            foreach(FourMomentum tjet, truth_jets) {
+                n_matches_truth->Fill(tjet.status());
+                if(notMatched.pass(tjet)) {
+                    foreach(FourMomentum rjet, reco_jets) {
+                        bool tmp = true;
+                        if(MatchPt.pass(tjet, rjet)){truth_lax_dr++; lax_dr_local++; tmp = false;}
+                        if(MatchdR.pass(tjet, rjet)){truth_lax_pt++; lax_pt_local++; tmp = false;}
+                        if(!tmp)break;
+                    }
+                }
             }
 
             jet_match_total += jet_match_local;
             jet_reco_total += reco_jets.size();
+            jet_reco_local += reco_jets.size();
 
             //cout << "Jets matched in this event: " << jet_match_local << "/" << reco_jets.size() << endl;
+
+            myfile << "Total number of truth jets which pass all criteria to be matched: " << jet_truth_local << "<br>" << "\n";
+            myfile << "Total number of reco jets: " << jet_reco_local << "<br>" << "\n";
+            myfile << "Total number of matches: " << jet_match_local << "<br>" << "\n";
+            myfile << "Number of extra matches with lax dR condition: " << lax_dr_local << "<br>" << "\n";
+            myfile << "Number of extra matches with lax pT condition: " << lax_pt_local << "<br>" << "\n";
+
+            myfile << "\n";
+            myfile.close();
+            cout << "Event: " << EventNumber_truth << " printed to file: " << name << endl;
+
             break;
 
         }
@@ -205,6 +273,9 @@ int main() {
     cout << "(Fraction: " << (float)jet_match_total/jet_reco_total  << " )" << endl;
     cout << "Number of total jets matched (truth -> reco): " << jet_match_total << "/" << jet_truth_total << endl;
     cout << "(Fraction: " << (float)jet_match_total/jet_truth_total  << " )" << endl;
+    cout << "Number of truth jets failed to match: " << jet_truth_total-jet_match_total << endl;
+    cout << "Number of truth failed truth jets matched with lax pT condition: " << truth_lax_pt << " (Fraction: " << (float)truth_lax_pt/(jet_truth_total-jet_match_total) << ")" << endl;
+    cout << "Number of truth failed truth jets matched with lax dR condition: " << truth_lax_dr << " (Fraction: " << (float)truth_lax_dr/(jet_truth_total-jet_match_total) << ")" << endl;
 
 
     //Finalize

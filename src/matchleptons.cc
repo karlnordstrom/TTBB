@@ -1,7 +1,9 @@
 #include <Utils.hh>
 #include <FourMomentum.hh>
+#include <Selectors.hh>
 
 using namespace std;
+using namespace Analysis;
 
 int main() {
 
@@ -65,9 +67,9 @@ int main() {
 
 //Read out all events
 
-    Selector SimpleCut;
-    SimpleCut.ptCut(1.);
-    SimpleCut.deltaRCut(0.1);
+    Comparison SimpleCut;
+    SimpleCut.ptWithin(1.);
+    SimpleCut.deltaRWithin(0.1);
 
     Int_t event_match = 0; //number of events matched by event number
     Int_t lepton_match = 0; // number of events matched by lepton

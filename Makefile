@@ -29,12 +29,13 @@ createjetplot: ./src/createjetplot.cc library
 	@echo "Building createjetplot..."
 	@g++ $(FLAGS) -o createjetplot ./src/createjetplot.cc $(MY_INCS) $(MY_LIBS) $(THIS_LIB) $(ROOT_INCS) $(ROOT_LIBS)
 
-library: Utils.o FourMomentum.o
+library: Utils.o FourMomentum.o Selectors.o
 	@echo "Linking library..."
-	@g++ -shared -Wl -o ./lib/libTTBB.so library.o FourMomentum.o -lc $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
-	@rm library.o
+	@g++ -shared -Wl -o ./lib/libTTBB.so Utils.o FourMomentum.o Selectors.o -lc $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
+	@cp -f ./lib/libTTBB.so /afs/phas.gla.ac.uk/user/k/knordstrom/rivet/local/lib
+	@rm Utils.o
 	@rm FourMomentum.o
-	@export LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):/afs/phas.gla.ac.uk/user/k/knordstrom/code/TTBB/lib
+	@rm Selectors.o
 
 FourMomentum.o: ./src/FourMomentum.cc ./include/FourMomentum.hh
 	@echo "Building FourMomentum..."
@@ -42,7 +43,11 @@ FourMomentum.o: ./src/FourMomentum.cc ./include/FourMomentum.hh
 
 Utils.o: ./src/Utils.cc ./include/Utils.hh
 	@echo "Building Utils..."
-	@g++ $(FLAGS) -c -fPIC ./src/Utils.cc -o library.o $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
+	@g++ $(FLAGS) -c -fPIC ./src/Utils.cc -o Utils.o $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
+
+Selectors.o: ./src/Selectors.cc ./include/Selectors.hh
+	@echo "Building Selectors..."
+	@g++ $(FLAGS) -c -fPIC ./src/Selectors.cc -o Selectors.o $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
 
 clean:
 	@rm matchjets || :

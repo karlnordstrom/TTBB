@@ -9,7 +9,7 @@ YMax=3.141592
 XMin=-4
 XMax=4
 LogY=0
-DrawOnly=lines circles crosses neutrino tags dummy
+DrawOnly=circles crosses neutrino tags dummy lines
 XLabel=$\eta$
 YLabel=$\phi$
 XMinorTickMarks=0
@@ -22,8 +22,8 @@ ColorSeries={rgb}{last}[rgb]{1,0.97,0.94}[rgb]{0.6,0.0,0.05}
 
 # BEGIN SPECIAL lines 
 \psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
-\psline[linewidth=0.4pt,linecolor=black,linestyle=dashed]\physicscoor( -4,0)\physicscoor( 4,0)
-\psline[linewidth=0.4pt,linecolor=black,linestyle=dashed]\physicscoor( 0,-3.14159)\physicscoor( 0,3.14159)
+\psline[linewidth=0.4pt,linecolor=red,linestyle=dashed]\physicscoor( 2.45,-3.14159)\physicscoor( 2.45,3.14159)
+\psline[linewidth=0.4pt,linecolor=red,linestyle=dashed]\physicscoor( -2.45,-3.14159)\physicscoor( -2.45,3.14159)
 \fontsize{8pt}{8.1pt}\selectfont
 \uput{4pt}[180]{0}\physicscoor(-2.65,2.5){+ = truth}
 \uput{4pt}[180]{0}\physicscoor(-2.9,2.8){$\sim$ $p_T$}
@@ -67,22 +67,31 @@ ColorSeries={rgb}{last}[rgb]{1,0.97,0.94}[rgb]{0.6,0.0,0.05}
 # BEGIN SPECIAL tags
 \psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
 \fontsize{8pt}{8.1pt}\selectfont
-\rput[Br]\physicscoor(0.692979,0.106439){-}
-\rput[Br]\physicscoor(-1.61097,-2.60632){-}
-\rput[Br]\physicscoor(0.0389419,2.59086){-}
-\rput[Br]\physicscoor(-0.678032,0.333292){-}
-\rput[Br]\physicscoor(-1.09481,-0.011067){-}
-\rput[Br]\physicscoor(-0.0218227,-2.07613){-}
-\rput[Bl]\physicscoor(-1.55274,-3.06015){-}
-\rput[Bl]\physicscoor(0.0750435,2.14433){-}
-\rput[Bl]\physicscoor(-0.831647,-0.227423){-}
-\rput[Bl]\physicscoor(0.747363,-0.345195){-}
-\rput[Bl]\physicscoor(0.0332749,-2.52876){-}
-\rput[Bl]\physicscoor(-2.04435,-3.13714){-}
-\rput[Bl]\physicscoor(-4.21774,0.77571){-}
-\rput[Bl]\physicscoor(0.831275,0.77614){-}
+\rput[Br]\physicscoor(0.692979,0.106439){\hspace{0pt}}
+\rput[Br]\physicscoor(-1.61097,-2.60632){\hspace{0pt}}
+\rput[Br]\physicscoor(0.0389419,2.59086){\hspace{0pt}}
+\rput[Br]\physicscoor(-0.678032,0.333292){\hspace{0pt}}
+\rput[Br]\physicscoor(-1.09481,-0.011067){\hspace{0pt}}
+\rput[Br]\physicscoor(-0.0218227,-2.07613){\hspace{0pt}}
+\rput[Bl]\physicscoor(-1.55274,-3.06015){\hspace{0pt}}
+\rput[Bl]\physicscoor(0.0750435,2.14433){\hspace{0pt}}
+\rput[Bl]\physicscoor(-0.831647,-0.227423){\hspace{0pt}}
+\rput[Bl]\physicscoor(0.747363,-0.345195){\hspace{0pt}}
+\rput[Bl]\physicscoor(0.0332749,-2.52876){\hspace{0pt}}
+\rput[Bl]\physicscoor(-2.04435,-3.13714){\hspace{0pt}}
+\rput[Bl]\physicscoor(-4.21774,0.77571){\hspace{0pt}}
+\rput[Bl]\physicscoor(0.831275,0.77614){\hspace{0pt}}
 \endpsclip
 # END SPECIAL
+
+# BEGIN SPECIAL neutrino
+\psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
+\psdots[dotstyle=diamond,dotscale=1.5]\physicscoor(-1.58274,-2.76015)
+\psdots[dotstyle=diamond,dotscale=1.5]\physicscoor(0.0450435,2.44433)
+\psdots[dotstyle=diamond,dotscale=1.5]\physicscoor(0.00327495,-2.22876)
+\endpsclip
+# END SPECIAL
+
 
 # BEGIN HISTOGRAM dummy
 LineColor=black

@@ -1,0 +1,109 @@
+# BEGIN PLOT
+TITLE=jets_event_60
+Legend=1
+LegendYPos=1
+LegendXPos=0
+LegendOnly=lepton1 lepton higgs1 higgs hadron1  hadron
+YMin=-3.141592
+YMax=3.141592
+XMin=-4
+XMax=4
+LogY=0
+DrawOnly=circles crosses neutrino tags dummy lines
+XLabel=$\eta$
+YLabel=$\phi$
+XMinorTickMarks=0
+YMinorTickMarks=0
+XMajorTickMarks=10
+YMajorTickMarks=10
+DrawSpecialFirst=1
+ColorSeries={rgb}{last}[rgb]{1,0.97,0.94}[rgb]{0.6,0.0,0.05}
+# END PLOT
+
+# BEGIN SPECIAL lines 
+\psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
+\psline[linewidth=0.4pt,linecolor=red,linestyle=dashed]\physicscoor( 2.45,-3.14159)\physicscoor( 2.45,3.14159)
+\psline[linewidth=0.4pt,linecolor=red,linestyle=dashed]\physicscoor( -2.45,-3.14159)\physicscoor( -2.45,3.14159)
+\fontsize{8pt}{8.1pt}\selectfont
+\uput{4pt}[180]{0}\physicscoor(-2.65,2.5){+ = truth}
+\endpsclip
+# END SPECIAL
+
+# BEGIN SPECIAL circles
+\psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
+\fontsize{8pt}{8.1pt}\selectfont
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=green,opacity=0.5]\physicscoor(0.722979,-0.0435607){0.4}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=green,opacity=0.5]\physicscoor(0.722979,-0.0435607){0.2}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(-1.58097,-2.75632){0.4}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(-1.58097,-2.75632){0.2}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(0.0689419,2.44086){0.4}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(0.0689419,2.44086){0.2}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(-0.648032,0.183292){0.4}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(-0.648032,0.183292){0.2}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(-1.06481,-0.161067){0.4}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(-1.06481,-0.161067){0.2}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(0.00817726,-2.22613){0.4}
+\pscircle[linestyle=none,fillstyle=solid,fillcolor=black,opacity=0.25]\physicscoor(0.00817726,-2.22613){0.2}
+\endpsclip
+# END SPECIAL
+
+# BEGIN SPECIAL crosses
+\psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
+\fontsize{8pt}{8.1pt}\selectfont
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.78274,-2.76015)\physicscoor( -1.38274,-2.76015)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.58274,-3.01015)\physicscoor( -1.58274,-2.51015)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -0.154957,2.44433)\physicscoor( 0.245043,2.44433)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( 0.0450435,2.19433)\physicscoor( 0.0450435,2.69433)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -1.06165,0.0725772)\physicscoor( -0.661647,0.0725772)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -0.861647,-0.177423)\physicscoor( -0.861647,0.322577)
+\psline[linewidth=1pt,linecolor=black,linestyle=dashed]\physicscoor( 0.517363,-0.0451946)\physicscoor( 0.917363,-0.0451946)
+\psline[linewidth=1pt,linecolor=black,linestyle=dashed]\physicscoor( 0.717363,-0.295195)\physicscoor( 0.717363,0.204805)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( -0.196725,-2.22876)\physicscoor( 0.203275,-2.22876)
+\psline[linewidth=1pt,linecolor=green,linestyle=dashed]\physicscoor( 0.00327495,-2.47876)\physicscoor( 0.00327495,-1.97876)
+\psline[linewidth=1pt,linecolor=blue,linestyle=dashed]\physicscoor( -2.27435,-2.83714)\physicscoor( -1.87435,-2.83714)
+\psline[linewidth=1pt,linecolor=blue,linestyle=dashed]\physicscoor( -2.07435,-3.08714)\physicscoor( -2.07435,-2.58714)
+\psline[linewidth=1pt,linecolor=blue,linestyle=dashed]\physicscoor( -4.44774,1.07571)\physicscoor( -4.04774,1.07571)
+\psline[linewidth=1pt,linecolor=blue,linestyle=dashed]\physicscoor( -4.24774,0.82571)\physicscoor( -4.24774,1.32571)
+\psline[linewidth=1pt,linecolor=blue,linestyle=dashed]\physicscoor( 0.601275,1.07614)\physicscoor( 1.00128,1.07614)
+\psline[linewidth=1pt,linecolor=blue,linestyle=dashed]\physicscoor( 0.801275,0.82614)\physicscoor( 0.801275,1.32614)
+\endpsclip
+# END SPECIAL
+
+# BEGIN SPECIAL tags
+\psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
+\fontsize{8pt}{8.1pt}\selectfont
+\rput[Br]\physicscoor(0.692979,0.106439){\hspace{0pt}}
+\rput[Br]\physicscoor(-1.61097,-2.60632){\hspace{0pt}}
+\rput[Br]\physicscoor(0.0389419,2.59086){\hspace{0pt}}
+\rput[Br]\physicscoor(-0.678032,0.333292){\hspace{0pt}}
+\rput[Br]\physicscoor(-1.09481,-0.011067){\hspace{0pt}}
+\rput[Br]\physicscoor(-0.0218227,-2.07613){\hspace{0pt}}
+\rput[Bl]\physicscoor(-1.55274,-3.06015){\hspace{0pt}}
+\rput[Bl]\physicscoor(0.0750435,2.14433){\hspace{0pt}}
+\rput[Bl]\physicscoor(-0.831647,-0.227423){\hspace{0pt}}
+\rput[Bl]\physicscoor(0.747363,-0.345195){\hspace{0pt}}
+\rput[Bl]\physicscoor(0.0332749,-2.52876){\hspace{0pt}}
+\rput[Bl]\physicscoor(-2.04435,-3.13714){\hspace{0pt}}
+\rput[Bl]\physicscoor(-4.21774,0.77571){\hspace{0pt}}
+\rput[Bl]\physicscoor(0.831275,0.77614){\hspace{0pt}}
+\endpsclip
+# END SPECIAL
+
+# BEGIN SPECIAL neutrino
+\psclip{\psframe[linewidth=0, linestyle=none](0,0)(1,1)}
+\psdots[dotstyle=diamond,dotscale=1.5]\physicscoor(-1.58274,-2.76015)
+\psdots[dotstyle=diamond,dotscale=1.5]\physicscoor(0.0450435,2.44433)
+\psdots[dotstyle=diamond,dotscale=1.5]\physicscoor(0.00327495,-2.22876)
+\endpsclip
+# END SPECIAL
+
+
+# BEGIN HISTOGRAM dummy
+LineColor=black
+LineWidth=0pt
+LineOpacity=0
+LineStyle=none
+ErrorBars=0
+PolyMarker=
+Title=dummy
+0 0 0 0
