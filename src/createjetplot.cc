@@ -77,14 +77,40 @@ int main(int argc,char *argv[]) {
     Int_t eventIndex;
     Int_t num_of_events = 0;
 
-    Comparison LeptonCut;
-    LeptonCut.deltaRWithin(0.2);
-
     /// This gives the conditions used for matching two jets
     Comparison MatchJets;
     MatchJets.deltaRWithin(0.2);
     MatchJets.ptWithin(10, 0.2);
 
+
+    /// Check if within dR=0.2 of the selected reco lepton
+    Comparison LeptonClose;
+    LeptonClose.deltaRWithin(0.2);
+
+    /// This is to find truth jets which pass all the cuts to consider them
+    /// "matchable" but which can't be matched
+    Selector notMatched;
+    notMatched.pdgIdCut(Equal, 1);
+    notMatched.statusCut(Equal, 0);
+
+    /// This is to find truth jets which are considered matchable
+    /// when combined with the LeptonCut above
+    Selector TruthSelector;
+    TruthSelector.ptCut(More, 20);
+    TruthSelector.etaCut(Less, 2.45);
+    TruthSelector.etaCut(More, -2.45);
+
+    /// This gives the pT conditions used for matching two jets
+    /// with lax dR condition
+    Comparison MatchPt;
+    MatchPt.ptWithin(10, 0.2);
+    MatchPt.deltaRWithin(0.5);
+
+    /// This gives the dR conditions used for matching two jets
+    /// with lax pT condition
+    Comparison MatchdR;
+    MatchdR.deltaRWithin(0.2);
+    MatchdR.ptWithin(50, 0.2);
 
     for ( eventIndex = 0; eventIndex < (Int_t) truthTree->GetEntries(); eventIndex++ ) {
 
@@ -98,16 +124,6 @@ int main(int argc,char *argv[]) {
 
             assert((int)EventNumber_truth == (int)EventNumber_reco); // extra assert to kill any bullshit
             num_of_events++;
-
-            ofstream myfile;
-
-            char number[10];
-            sprintf(number, "%d", (int)EventNumber_truth);
-
-            char name[80];
-            strcpy (name, argv[1]);
-            strcat (name, number);
-            myfile.open(name);
 
             //Need to create vectors because reco jets stored as C arrays (YAY)
             vector<float> pts, etas, phis, Es;
@@ -126,6 +142,41 @@ int main(int argc,char *argv[]) {
             if(reco_jets.size() > 6) {
                 reco_jets.erase(reco_jets.begin() + 6, reco_jets.end());
             }
+
+            int jet_truth_local = 0;
+
+            foreach(FourMomentum &tjet, truth_jets) {
+                if( TruthSelector.pass(tjet) && !LeptonClose.pass(tjet, rlep)) {
+                    jet_truth_local++;
+                    tjet.setPdgId(1); // as above
+                }
+            }
+
+            int matches = 0;
+
+            foreach(FourMomentum &rjet, reco_jets) {
+
+                foreach(FourMomentum &tjet, truth_jets) {
+
+                    if( MatchJets.pass(tjet, rjet) ) { //matched!
+                        matches++;
+                        break;
+                    }
+                }
+            }
+
+            if(jet_truth_local != matches) {
+
+            ofstream myfile;
+
+            char number[10];
+            sprintf(number, "%d", (int)EventNumber_truth);
+
+            char name[80];
+            strcpy (name, argv[1]);
+            strcat (name, number);
+            myfile.open(name);
+
 
             myfile << "R" << "  " << "\\" << "hspace{0pt}" << " " << 0 << "  " << rlep.pt() << " " << rlep.eta() << "    " << rlep.phi() << "    " << rlep.energy() << "  " << 0 <<"\n";
 
@@ -150,19 +201,20 @@ int main(int argc,char *argv[]) {
                 if(tjet.status() == 0) {
                     if(tjet.pt() < 20)myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 1 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
                     else if(abs(tjet.eta()) > 2.45)myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 2 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
-                    else if(LeptonCut.pass(tjet, rlep))myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 3 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
+                    else if(LeptonClose.pass(tjet, rlep))myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 3 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
                     else myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 0 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 0 <<"\n";
                 }
                 else {
                     if(tjet.pt() < 20)myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 1 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 1 <<"\n";
                     else if(abs(tjet.eta()) > 2.45)myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 2 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 1 <<"\n";
-                    else if(LeptonCut.pass(tjet, rlep))myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 3 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 1 <<"\n";
+                    else if(LeptonClose.pass(tjet, rlep))myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 3 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 1 <<"\n";
                     else myfile << "T3" << "  " << "\\" << "hspace{0pt}" << "    " << 0 << "  " << tjet.pt() << " " << tjet.eta() << "    " << tjet.phi() << "    " << tjet.energy() << "  " << 1 <<"\n";
                 }
             }
             myfile << "\n";
             myfile.close();
             cout << "Event: " << EventNumber_truth << " printed to file: " << name << endl;
+            }
             break;
         }
     }

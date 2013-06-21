@@ -54,24 +54,24 @@ private:
 /// Helper functions for creating FourMomentum out of
 /// vectors containing the pt, eta, phi, and E values
 
-template <class N>
-FourMomentum makeVector(N pt, N eta, N phi, N E) {
+template <class N, class M, class R, class T>
+FourMomentum makeVector(N pt, M eta, R phi, T E) {
     TLorentzVector vector;
     vector.SetPtEtaPhiE(pt/1000., eta, phi, E/1000.); // convert to GeV
     FourMomentum mom(vector, 0, 0);
     return mom;
 }
 
-template <class N>
-FourMomentum makeVector(N pt, N eta, N phi, N E, int pdgId, int status) {
+template <class N, class M, class R, class T>
+FourMomentum makeVector(N pt, M eta, R phi, T E, int pdgId, int status) {
     TLorentzVector vector;
     vector.SetPtEtaPhiE(pt/1000., eta, phi, E/1000.); // convert to GeV
     FourMomentum mom(vector, pdgId, status);
     return mom;
 }
 
-template <class N>
-vector<FourMomentum> makeVectors(vector<N> pt, vector<N> eta, vector<N> phi, vector<N> E, vector<int> pdgId, vector<int> status) {
+template <class N, class M, class R, class T>
+vector<FourMomentum> makeVectors(vector<N> pt, vector<M> eta, vector<R> phi, vector<T> E, vector<int> pdgId, vector<int> status) {
     assert(pt.size() == eta.size() && eta.size() == phi.size() && phi.size() == E.size() && E.size() == pdgId.size() && pdgId.size() == status.size());//make sure input makes sense
     vector<FourMomentum> vectors;
     TLorentzVector vector;
@@ -83,8 +83,8 @@ vector<FourMomentum> makeVectors(vector<N> pt, vector<N> eta, vector<N> phi, vec
     return vectors;
 }
 
-template<class N>
-vector<FourMomentum> makeVectors(vector<N> pt, vector<N> eta, vector<N> phi, vector<N> E) {
+template<class N, class M, class R, class T>
+vector<FourMomentum> makeVectors(vector<N> pt, vector<M> eta, vector<R> phi, vector<T> E) {
     assert(pt.size() == eta.size() && eta.size() == phi.size() && phi.size() == E.size());//make sure input makes sense
     vector<FourMomentum> vectors;
     TLorentzVector vector;

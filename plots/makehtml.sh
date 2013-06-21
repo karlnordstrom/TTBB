@@ -4,6 +4,13 @@ pngs=png
 html=html
 statistics=stats
 
+cd $html
+rm -r jets_event_*
+cd plots
+rm *
+cd ..
+cd ..
+
 ## Really stupid script for creating simple html webpage out of event displays
 
 cat <<EOF > ./$html/index.html
@@ -83,6 +90,8 @@ cat <<EOF >> ../$html/$stat/index.html
 </p>
 EOF
 
+##Need to do this in parts to avoid events 16 and 167 etc. to be considered the same...
+
 for pic in $(ls ../$html/plots/${stat}constant.png)
 do
 cat <<EOF >> ../$html/$stat/index.html
@@ -92,6 +101,7 @@ cat <<EOF >> ../$html/$stat/index.html
 EOF
 done
 
+##The weird source below could probably be cleaned up...
 for pic in $(ls ../$html/plots/${stat}pt.png)
 do
 cat <<EOF >> ../$html/$stat/index.html
