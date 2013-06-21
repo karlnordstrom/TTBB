@@ -83,7 +83,7 @@ cat <<EOF >> ../$html/$stat/index.html
 </p>
 EOF
 
-for pic in $(ls ../$html/plots/$stat*)
+for pic in $(ls ../$html/plots/${stat}constant.png)
 do
 cat <<EOF >> ../$html/$stat/index.html
 <div style="float:left; font-size:smaller; font-weight:bold;">
@@ -91,6 +91,16 @@ cat <<EOF >> ../$html/$stat/index.html
 </div>
 EOF
 done
+
+for pic in $(ls ../$html/plots/${stat}pt.png)
+do
+cat <<EOF >> ../$html/$stat/index.html
+<div style="float:left; font-size:smaller; font-weight:bold;">
+    <img src="plots/../../$pic" height="520" width="800">
+</div>
+EOF
+done
+
 
 done
 
