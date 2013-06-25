@@ -4,24 +4,47 @@
 ## Example: ./plotscript.sh RT pt
 ## This will plot all quantities for R+T3 for all .plot files, put them in the specified directory, and move all the generated .dat files into another specified one.
 
+rivet=rivet
+root=root
+
+if [ "$3"="$rivet" ]; then
+##Directory for plots:
+plots=rivet_pdf
+##Directory for .dat files:
+dats=rivet_dat
+##Directory for raw files:
+raws=rivet_raw
+else
 ##Directory for plots:
 plots=pdf
 ##Directory for .dat files:
 dats=dat
-##Directory for raw files:
+##Directory for raw files:mv: cannot stat `raw_16constant.datconstant.datconstant.pdf': No such file or directory
 raws=raw
+fi
 
-##Check directories exist, exit if they don't.
+if [ -d "$plots" ]; then
+    rm -r $plots
+    mkdir $plots
+fi
+
 if [ ! -d "$plots" ]; then
-	echo "Plot directory does not exist or is not a directory!"
-	exit
+    mkdir $plots
 fi
+
+if [ -d "$dats" ]; then
+    rm -r $dats
+    mkdir $dats
+fi
+
 if [ ! -d "$dats" ]; then
-	echo ".dat directory does not exist or is not a directory!"
-	exit
+    mkdir $dats
 fi
+
+
+##Check raw directory exists, exit if not
 if [ ! -d "$raws" ]; then
-	echo "raw directory does not exist or is not a directory!"
+	echo "Raw directory does not exist or is not a directory!"
 	exit
 fi
 
@@ -33,10 +56,11 @@ else
 	exit
 fi
 
-cd $raws
-for f in $(ls)
+echo "Creating and compiling latex..."
+
+for f in $(ls $raws)
 do
-        plotter $f $1 $2 > ${f}${2}.dat && make-plots ${f}${2}.dat && mv ${f}${2}.dat ../$dats && mv ${f}${2}.pdf ../$plots
+        plotter $raws/$f $1 $2 > $dats/${f}${2}.dat && make-plots $dats/${f}${2}.dat && mv $dats/${f}${2}.pdf $plots
 done
 
 exit

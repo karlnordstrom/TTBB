@@ -1,15 +1,36 @@
 #!/bin/bash
 
+if [ "$1"="$rivet" ];
+then
+pngs=rivet_png
+html=rivet_html
+statistics=rivet_stats
+else
 pngs=png
 html=html
 statistics=stats
+fi
 
-cd $html
-rm -r jets_event_*
-cd plots
-rm *
-cd ..
-cd ..
+if [ -d "$html" ]; then
+    rm -r $html
+    mkdir $html
+fi
+
+if [ ! -d "$html" ]; then
+    mkdir $html
+fi
+
+if [ -d "$statistics" ]; then
+    rm -r $statistics
+    mkdir $statistics
+fi
+
+if [ ! -d "$statistics" ]; then
+    mkdir $statistics
+fi
+
+
+echo "Creating html webpage..."
 
 ## Really stupid script for creating simple html webpage out of event displays
 
@@ -49,6 +70,10 @@ if [ "$png" = "${png%pt.png}" ]; then
     directory=${png%constant.png}
 fi
 
+if [ ! -d "../$html/plots" ]; then
+    mkdir ../$html/plots
+fi
+
 cp $png ../$html/plots/
 
 if [ "$png" = "${png%pt.png}" ]; then
@@ -61,6 +86,11 @@ EOF
 fi
 
 done
+
+if [ "$1"="$rivet" ];
+then
+exit
+fi
 
 cd ..
 cd $statistics
