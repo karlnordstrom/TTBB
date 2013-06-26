@@ -93,10 +93,10 @@ int main(int argc,char *argv[]) {
 
     TH1D *dpT_jet = new TH1D("dpT_jet", "dpT_jet (positive is reco is greater)", 50, -50, 50);
     TH1D *dR_jet = new TH1D("dR_jet", "dR_jet", 30, 0, 0.3);
-    TH1D *dpT_jet_ave = new TH1D("dpT_jet_ave", "dp (positive is reco is greater)", 50, -50, 50);
+    TH1D *dpT_jet_ave = new TH1D("dpT_jet_ave", "Average dPt as function of truth pT", 50, 0, 250);
 
-    TH1D *dR_jet_closest = new TH1D("dR_jet", "dR_jet", 30, 0, 0.3);
-    TH1D *dpT_jet_closest = new TH1D("dpT_jet_ave", "dpT_jet_ave", 25, 0, 250);
+    TH1D *dR_jet_closest = new TH1D("dR_jet_closest", "dR to closest in dR (unmatched)", 10, 0, 1.0);
+    TH1D *dpT_jet_closest = new TH1D("dpT_jet_closest", "dpT to closest in dR (unmatched)", 25, 0, 250);
     TH1D *pT_unmatched_reco = new TH1D("pT_unmatched_reco", "pT unmatched reco", 25, 0, 250);
     TH1D *pT_unmatched_truth = new TH1D("pT_unmatched_truth", "pT unmatched truth", 25, 0, 250);
 

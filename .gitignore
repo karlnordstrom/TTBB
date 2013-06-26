@@ -5,4 +5,7 @@
 
 
 # Can also ignore all directories and files in a directory.
-plots/**/* 
+plots/raw/* 
+plots/rivet_raw/* 
+plots/rivet_stats/* 
+plots/stats/* 
