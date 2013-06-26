@@ -1,12 +1,9 @@
 #!/bin/bash
 
-##Directory for plots:
-plots=pdf
-##Directory for .dat files:
-pngs=png
+rivet=rivet
+root=root
 
-if [ "$1"="$rivet" ];
-then
+if [ "$1" = "$rivet" ]; then
 ##Directory for plots:
 plots=rivet_pdf
 ##Directory for .dat files:
@@ -18,13 +15,12 @@ plots=pdf
 pngs=png
 fi
 
-if [ -d "$pngs" ]; then
-    rm -r $pngs
+if [ ! -d "$pngs" ]; then
     mkdir $pngs
 fi
 
-if [ ! -d "$pngs" ]; then
-    mkdir $pngs
+if [ ! -d "$plots" ]; then
+    mkdir $plots
 fi
 
 echo "Converting pdfs to pngs..."

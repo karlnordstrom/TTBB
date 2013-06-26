@@ -4,11 +4,12 @@ all: root rivet
 
 root: plotscript convertpng makehtml
 	@./plotscript.sh RT constant
+	@./plotscript.sh RT pt
 	@./convertpng.sh
 	@./makehtml.sh
 
 rivet: plotscript convertpng makehtml
-	@./plotscript.sh T3 constant rivet
+	@./plotscript.sh RT constant rivet
 	@./convertpng.sh rivet
 	@./makehtml.sh rivet
 

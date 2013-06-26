@@ -1,6 +1,9 @@
 #!/bin/bash
 
-if [ "$1"="$rivet" ];
+rivet=rivet
+root=root
+
+if [ "$1" = "$rivet" ];
 then
 pngs=rivet_png
 html=rivet_html
@@ -11,18 +14,8 @@ html=html
 statistics=stats
 fi
 
-if [ -d "$html" ]; then
-    rm -r $html
-    mkdir $html
-fi
-
 if [ ! -d "$html" ]; then
     mkdir $html
-fi
-
-if [ -d "$statistics" ]; then
-    rm -r $statistics
-    mkdir $statistics
 fi
 
 if [ ! -d "$statistics" ]; then

@@ -7,7 +7,7 @@
 rivet=rivet
 root=root
 
-if [ "$3"="$rivet" ]; then
+if [ "$3" = "$rivet" ]; then
 ##Directory for plots:
 plots=rivet_pdf
 ##Directory for .dat files:
@@ -19,28 +19,17 @@ else
 plots=pdf
 ##Directory for .dat files:
 dats=dat
-##Directory for raw files:mv: cannot stat `raw_16constant.datconstant.datconstant.pdf': No such file or directory
+##Directory for raw files:
 raws=raw
-fi
-
-if [ -d "$plots" ]; then
-    rm -r $plots
-    mkdir $plots
 fi
 
 if [ ! -d "$plots" ]; then
     mkdir $plots
 fi
 
-if [ -d "$dats" ]; then
-    rm -r $dats
-    mkdir $dats
-fi
-
 if [ ! -d "$dats" ]; then
     mkdir $dats
 fi
-
 
 ##Check raw directory exists, exit if not
 if [ ! -d "$raws" ]; then
@@ -50,7 +39,7 @@ fi
 
 ##Make sure plotting instructions make sense.
 if [ "$1" == "RT"  ]||[ "$1" == "R"  ]||[ "$1" == "T1"  ]||[ "$1" == "T2"  ]||[ "$1" == "T3"  ]; then
-	echo "Plotting."
+	echo "Plotting instructions accepted."
 else
 	echo "Plotting instructions don't make sense. Look at instructions in plotter source."
 	exit
@@ -60,7 +49,7 @@ echo "Creating and compiling latex..."
 
 for f in $(ls $raws)
 do
-        plotter $raws/$f $1 $2 > $dats/${f}${2}.dat && make-plots $dats/${f}${2}.dat && mv $dats/${f}${2}.pdf $plots
+        plotter $raws/$f $1 $2 > $dats/${f}${2}.dat && make-plots $dats/${f}${2}.dat && cp $dats/${f}${2}.pdf $plots
 done
 
 exit
