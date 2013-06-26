@@ -25,8 +25,8 @@ int main(int argc,char *argv[]) {
     TTree *recoTree = (TTree*)recoFile->Get("mini");
 
     TChain *truthTree = new TChain("truth");
-    //truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._*.pool.root");
-    truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._000001.pool.root");
+    truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._*.pool.root");
+    //truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._000001.pool.root");
 
     TFile *outputFile = new TFile("~/output/comparedata.root", "RECREATE");
     outputFile->cd(); // WHY IS THIS NEEDED ROOT IS SO CONFUSING
@@ -93,9 +93,18 @@ int main(int argc,char *argv[]) {
 
     TH1D *dpT_jet = new TH1D("dpT_jet", "dpT_jet (positive is reco is greater)", 50, -50, 50);
     TH1D *dR_jet = new TH1D("dR_jet", "dR_jet", 30, 0, 0.3);
-    TH1D *dpT_jet_ave = new TH1D("dpT_jet_ave", "dpT_jet_ave", 25, 0, 250);
+    TH1D *dpT_jet_ave = new TH1D("dpT_jet_ave", "dp (positive is reco is greater)", 50, -50, 50);
+
+    TH1D *dR_jet_closest = new TH1D("dR_jet", "dR_jet", 30, 0, 0.3);
+    TH1D *dpT_jet_closest = new TH1D("dpT_jet_ave", "dpT_jet_ave", 25, 0, 250);
+    TH1D *pT_unmatched_reco = new TH1D("pT_unmatched_reco", "pT unmatched reco", 25, 0, 250);
+    TH1D *pT_unmatched_truth = new TH1D("pT_unmatched_truth", "pT unmatched truth", 25, 0, 250);
+
     TH1D *n_matches_truth = new TH1D("n_matches_truth", "number of reco jets matched to truth jet", 5, 0, 5);
+    TH1D *n_matches_truth_real = new TH1D("n_matches_truth_real", "number of reco jets matched to truth jet", 5, 0, 5);
+    TH1D *n_matches_reco = new TH1D("n_matches_reco", "number of truth jets matched to reco jet", 5, 0, 5);
     TH2D *pT_truth_vs_reco = new TH2D("pT_truth_vs_reco", "pT_truth_vs_reco (x axis is truth)", 25, 0, 250, 25, 0, 250);
+    TH2D *unmatched_dpt_vs_dr = new TH2D("unmatched_dpt_vs_dr", "unmatched dR versus dPt to closest in dR", 10, 0, 1.0, 50, 0, 50);
 
 // Helpers for histograms
     AverageHisto average_dpt(dpT_jet_ave);
@@ -222,6 +231,7 @@ int main(int argc,char *argv[]) {
 
                     if( MatchJets.pass(tjet, rjet) ) { //matched!
                         tjet.setStatus(tjet.status() + 1);
+                        rjet.setStatus(rjet.status() + 1);
                         jet_match_local++;
                         dpT_jet->Fill(rjet.deltaPt(tjet));
                         dR_jet->Fill(tjet.deltaR(rjet));
@@ -232,17 +242,39 @@ int main(int argc,char *argv[]) {
                 }
             }
 
+            vector <double> dRs;
+
             foreach(FourMomentum tjet, truth_jets) {
+                dRs.clear();
                 n_matches_truth->Fill(tjet.status());
+                if(tjet.pdgId() == 1)n_matches_truth_real->Fill(tjet.status());
+                bool tmp = true;
                 if(notMatched.pass(tjet)) {
                     foreach(FourMomentum rjet, reco_jets) {
-                        bool tmp = true;
-                        if(MatchPt.pass(tjet, rjet)){truth_lax_dr++; lax_dr_local++; tmp = false;}
-                        if(MatchdR.pass(tjet, rjet)){truth_lax_pt++; lax_pt_local++; tmp = false;}
-                        if(!tmp)break;
+                        dRs.push_back(tjet.deltaR(rjet));
+                        if(MatchPt.pass(tjet, rjet) && tmp){truth_lax_dr++; lax_dr_local++; tmp = false;}
+                        if(MatchdR.pass(tjet, rjet) && tmp){truth_lax_pt++; lax_pt_local++; tmp = false;}
+                    }
+                    if(dRs.size() == 0)continue;
+                    sort(dRs.begin(), dRs.end());
+                    foreach(FourMomentum rjet, reco_jets) {
+                        if(areSimilar(dRs[0], tjet.deltaR(rjet), 0.000000001, 0.)) {
+                            dR_jet_closest->Fill(tjet.deltaR(rjet));
+                            dpT_jet_closest->Fill(rjet.deltaPt(tjet));
+                            pT_unmatched_truth->Fill(tjet.pt());
+                            unmatched_dpt_vs_dr->Fill(tjet.deltaR(rjet), abs(tjet.deltaPt(rjet)));
+                        }
                     }
                 }
             }
+
+            foreach(FourMomentum rjet, reco_jets) {
+                n_matches_reco->Fill(rjet.status());
+                if(rjet.status() == 0) {
+                    pT_unmatched_reco->Fill(rjet.pt());
+                }
+            }
+
 
             jet_match_total += jet_match_local;
             jet_reco_total += reco_jets.size();

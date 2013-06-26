@@ -19,6 +19,7 @@
 #include <exception>
 #include <stdexcept>
 #include <boost/any.hpp>
+#include <algorithm>
 
 #define foreach BOOST_FOREACH //just to clean up the loops a bit
 

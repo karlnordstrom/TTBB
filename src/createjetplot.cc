@@ -165,8 +165,6 @@ int main(int argc,char *argv[]) {
                 }
             }
 
-            if(jet_truth_local != matches) {
-
             ofstream myfile;
 
             char number[10];
@@ -214,7 +212,7 @@ int main(int argc,char *argv[]) {
             myfile << "\n";
             myfile.close();
             cout << "Event: " << EventNumber_truth << " printed to file: " << name << endl;
-            }
+
             break;
         }
     }
