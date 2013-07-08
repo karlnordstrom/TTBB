@@ -11,6 +11,8 @@
 #include <TH2D.h>
 #include <TProfile.h>
 #include <TChain.h>
+#include <TROOT.h>
+#include <TStyle.h>
 
 #include <cmath>
 #include <vector>

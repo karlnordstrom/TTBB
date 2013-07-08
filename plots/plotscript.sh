@@ -49,7 +49,7 @@ echo "Creating and compiling latex..."
 
 for f in $(ls $raws)
 do
-        plotter $raws/$f $1 $2 > $dats/${f}${2}.dat && make-plots $dats/${f}${2}.dat && cp $dats/${f}${2}.pdf $plots
+        plotter $raws/$f $1 $2 > $dats/${f}${2}.dat && make-plots $dats/${f}${2}.dat && mv $dats/${f}${2}.pdf $plots
 done
 
 exit

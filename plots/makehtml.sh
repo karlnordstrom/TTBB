@@ -80,10 +80,12 @@ fi
 
 done
 
-if [ "$1"="$rivet" ];
+if [ "$1" = "$rivet" ];
 then
-exit
+    exit
 fi
+
+echo "Creating statistics."
 
 cd ..
 cd $statistics
@@ -110,6 +112,7 @@ cat <<EOF > ../$html/$stat/index.html
 EOF
 cat $stat >> ../$html/$stat/index.html
 cat <<EOF >> ../$html/$stat/index.html
+<a href="../index.html">Back to index</a>
 </p>
 EOF
 
