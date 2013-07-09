@@ -52,6 +52,9 @@ Creating HTML web page
 For this step, you need to install my event plotter in a location in PATH. The source is
 in ./plotter, and can be built using the makefile (as long as you have asetup'd correctly).
 Then just copy the executable into a location that is in your $PATH environment variable.
+You also need access to a Rivet install that you can access from the shell -- I'm not sure
+if asetup works for this, otherwise you'll just have to figure things out yourself, I use
+a local install.
 
 To create the webpage, you first have to run matchjets and createjetplot to generate
 the raw data. First make sure that ./plots/raw/ and ./plots/stats/ are both empty (just
