@@ -3,10 +3,16 @@
 
 FLAGS=-g -Wall -O3
 
-MY_INCS=-I/afs/phas.gla.ac.uk/user/k/knordstrom/rivet/local/include -I/afs/phas.gla.ac.uk/user/k/knordstrom/code/TTBB/include
+## You need to give the path to your boost headers here.
+## See README.md for more instructions
+MY_INCS=-I/afs/phas.gla.ac.uk/user/k/knordstrom/rivet/local/include -I$(shell pwd)/include
 MY_LIBS=
 
-THIS_LIB=-L/afs/phas.gla.ac.uk/user/k/knordstrom/code/TTBB/lib -lTTBB
+## This NEEDS to be set somewhere your linker searches (aka LD_LIBRARY_PATH)
+## See README.md for more instructions
+MY_LD_LIBRARY_PATH=/afs/phas.gla.ac.uk/user/k/knordstrom/rivet/local/lib
+
+THIS_LIB=-L$(shell pwd)/lib -lTTBB
 
 ROOT_INCS=$(shell root-config --cflags)
 ROOT_LIBS=$(shell root-config --libs)
@@ -32,7 +38,7 @@ createjetplot: ./src/createjetplot.cc library
 library: Utils.o FourMomentum.o Selectors.o
 	@echo "Linking library..."
 	@g++ -shared -Wl -o ./lib/libTTBB.so Utils.o FourMomentum.o Selectors.o -lc $(MY_INCS) $(MY_LIBS) $(ROOT_INCS) $(ROOT_LIBS)
-	@cp -f ./lib/libTTBB.so /afs/phas.gla.ac.uk/user/k/knordstrom/rivet/local/lib
+	@cp -f ./lib/libTTBB.so $(MY_LD_LIBRARY_PATH)
 	@rm Utils.o
 	@rm FourMomentum.o
 	@rm Selectors.o
