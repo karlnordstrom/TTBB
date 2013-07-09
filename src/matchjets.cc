@@ -267,25 +267,6 @@ int main(int argc,char *argv[]) {
 //                reco_jets.erase(reco_jets.begin() + 6, reco_jets.end());
 //            }
 
-            /// Plot pt, eta for all, leading, and subleading jets
-            /// and n_jet
-
-            for(size_t t = 0; t < truth_jets.size(); ++t) {
-                pt_truth->Fill(truth_jets[t].pt());
-                eta_truth->Fill(truth_jets[t].eta());
-                if(t == 0) {pt_truth_1->Fill(truth_jets[t].pt()); eta_truth_1->Fill(truth_jets[t].eta());}
-                if(t == 1) {pt_truth_2->Fill(truth_jets[t].pt()); eta_truth_2->Fill(truth_jets[t].eta());}
-            }
-
-            for(size_t t = 0; t < reco_jets.size(); ++t) {
-                pt_reco->Fill(reco_jets[t].pt());
-                eta_reco->Fill(reco_jets[t].eta());
-                if(t == 0) {pt_reco_1->Fill(reco_jets[t].pt()); eta_reco_1->Fill(reco_jets[t].eta());}
-                if(t == 1) {pt_reco_2->Fill(reco_jets[t].pt()); eta_reco_2->Fill(reco_jets[t].eta());}
-            }
-
-
-
             ///At this point it gets a bit confusing:
             ///The pdgId (which is set to zero before this by the default constructor)
             ///is used to track the truth jets which "should" be matched to a reco jet
@@ -304,6 +285,29 @@ int main(int argc,char *argv[]) {
                     tjet.setPdgId(1); // as above
                 }
             }
+
+            /// Plot pt, eta for all, leading, and subleading jets
+            /// and n_jet
+
+            Int_t leading = 0;
+
+            foreach(FourMomentum tjet, truth_jets) {
+                if(tjet.pdgId() != 1)continue;
+                if(leading == 1) {pt_truth_2->Fill(tjet.pt()); eta_truth_2->Fill(tjet.eta()); leading++;}
+                if(leading == 0) {pt_truth_1->Fill(tjet.pt()); eta_truth_1->Fill(tjet.eta()); leading++;}
+                pt_truth->Fill(tjet.pt());
+                eta_truth->Fill(tjet.eta());
+            }
+
+            leading = 0;
+
+            foreach(FourMomentum rjet, reco_jets) {
+                if(leading == 1) {pt_reco_2->Fill(rjet.pt()); eta_reco_2->Fill(rjet.eta()); leading++;}
+                if(leading == 0) {pt_reco_1->Fill(rjet.pt()); eta_reco_1->Fill(rjet.eta()); leading++;}
+                pt_reco->Fill(rjet.pt());
+                eta_reco->Fill(rjet.eta());
+            }
+
 
             n_truth->Fill(jet_truth_local);
             n_reco->Fill(reco_jets.size());
