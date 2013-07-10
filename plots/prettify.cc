@@ -157,10 +157,16 @@ void prettify() {
     gen4->GetXaxis()->SetRangeUser(0,100);
     gen5->GetXaxis()->SetRangeUser(0,100);
 
+    gen5->Sumw2();
+    gen4->Sumw2();
+
     Double_t scale4 = 1/gen4->Integral();
     gen4->Scale(scale4);
     Double_t scale5 = 1/gen5->Integral();
     gen5->Scale(scale5);
+
+    gen5->Sumw2();
+    gen4->Sumw2();
 
     gen4->Draw();
     gen5->Draw("same");
@@ -172,7 +178,13 @@ void prettify() {
 
     c1->SaveAs("pt_unmatched.ps");
 
-    TH1F *gen6=(TH1F*) gDirectory->Get("dpT_jet_ave");
+    TH1F *gen6=(TH1F*) gDirectory->Get("dpT_jet_ave_new");
+    TH1F *gen7=(TH1F*) gDirectory->Get("dpT_jet_ave_entries");
+    gen6->Sumw2();
+    gen7->Sumw2();
+
+    gen6->Divide(gen7);
+    gen6->Sumw2();
     gen6->SetStats(0);
     gen6->SetTitle("Average |dp_{T}| as a function of p_{T}^{truth} for matched jet pairs");
 
@@ -185,9 +197,9 @@ void prettify() {
     TF1 *sqroot= new TF1("sqroot", "sqrt(0.35*x) + 1.7", 0, 250);
     sqroot->Draw("same");
 
-    leg_hist = new TLegend(0.5,0.25,0.79,0.45);
+    leg_hist = new TLegend(0.5,0.13,0.79,0.33);
     leg_hist->AddEntry(gen6,"Average |dp_{T}|","l");
-    leg_hist->AddEntry(gen5,"C #times #sqrt{p_{T}^{truth}} + <dp_{T}>","l");
+    leg_hist->AddEntry(gen5,"0.6 #times #sqrt{p_{T}^{truth}} + 1.7","l");
     leg_hist->Draw();
 
     c1->SaveAs("average_dpt.ps");
@@ -205,10 +217,16 @@ void prettify() {
 
     gen5->GetXaxis()->SetRange(xmin, xmax);
 
+    gen5->Sumw2();
+    gen4->Sumw2();
+
     Double_t scale4 = 1/gen4->Integral();
     gen4->Scale(scale4);
     Double_t scale5 = 1/gen5->Integral();
     gen5->Scale(scale5);
+
+    gen5->Sumw2();
+    gen4->Sumw2();
 
     gen5->SetMaximum(0.2);
     gen5->SetMinimum(0.);
@@ -234,8 +252,34 @@ void prettify() {
     gen6->GetXaxis()->SetTitle("dp_{T} [GeV]");
     gen6->GetYaxis()->SetTitle("Number of jets");
     gen6->GetYaxis()->SetTitleOffset(1.5);
+    gen6->Sumw2();
+
+    gen6->Fit("gaus");
+    TF1 *fit = gen6->GetFunction("gaus");
+    Double_t p0 = fit->GetParameter(0);
+    Double_t p1 = fit->GetParameter(1);
+    Double_t p2 = 2 * fit->GetParameter(2);
+
+    char name[250];
+
+    char number[10];
+    sprintf(number, "%d", (double)p0);
+    strcpy (name, "");
+    strcat (name, number);
+    strcat (name, " e^{- #left(#frac{x - ");
+    sprintf(number, "%.1f", (double)p1);
+    strcat (name, number);
+    strcat (name, "}{");
+    sprintf(number, "%.1f", (double)p2);
+    strcat (name, number);
+    strcat (name, "} #right)^{2}}");
 
     gen6->Draw();
+
+    leg_hist = new TLegend(0.6,0.45,0.89,0.60);
+    leg_hist->AddEntry(gen6,"dp_{T}","l");
+    leg_hist->AddEntry(fit, name,"l");
+    leg_hist->Draw();
 
     c1->SaveAs("dpt_jet.ps");
 
@@ -250,10 +294,16 @@ void prettify() {
 
     gen5->GetXaxis()->SetRange(xmin, xmax);
 
+    gen5->Sumw2();
+    gen4->Sumw2();
+
     Double_t scale4 = 1/gen4->Integral();
     gen4->Scale(scale4);
     Double_t scale5 = 1/gen5->Integral();
     gen5->Scale(scale5);
+
+    gen5->Sumw2();
+    gen4->Sumw2();
 
     gen5->SetMaximum(0.15);
     gen5->SetMinimum(0.);
@@ -282,21 +332,48 @@ void prettify() {
     pad2->cd();
     gen5->SetStats(0);
     gen5->SetTitle("");
-    gen5->Divide(gen4);
-    gen5->Sumw2();
     Int_t size_hist = gen5->GetSize() - 2;
-    gen5->SetMaximum(1.5);
-    gen5->SetMinimum(0.5);
-    gen5->SetMarkerStyle(21);
-    gen5->GetXaxis()->SetTitle("");
-    gen5->GetXaxis()->SetLabelOffset(100);
-    gen5->GetYaxis()->SetTitle("Truth/Reco");
-    gen5->GetYaxis()->SetTitleSize(0.06);
-    gen5->GetYaxis()->SetTitleOffset(0.5);
-    gen5->DrawCopy("ep");
+    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    gen5->Sumw2();
+    gen4->Sumw2();
+    div->Divide(gen5, gen4);
+    div->Sumw2();
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    for(int iBin = 1; iBin <= size_hist; ++iBin){
+
+      float binUnc = div->GetBinError(iBin);
+
+      newHist->SetBinContent(iBin, 1);
+      newHist->SetBinError(iBin, binUnc);
+
+      div->SetBinError(iBin, 0);
+
+    }
+
+    // this makes a bright yellow error band
+    newHist->GetYaxis()->SetTitle("Truth/Reco");
+    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleOffset(0.5);
+    newHist->GetXaxis()->SetTitle("");
+    newHist->SetMaximum(2.0);
+    newHist->SetMinimum(0.0);
+    newHist->SetFillStyle(1001);
+    newHist->SetLineColor(kYellow-7);
+    newHist->SetFillColor(kYellow-7);
+    newHist->SetLineWidth(0);
+    newHist->SetMarkerStyle(0);
+    newHist->SetStats(0);
+    newHist->DrawCopy("E2");
+
+    div->SetMarkerStyle(21);
+    div->SetMarkerColor(1);
+    div->DrawCopy("same ep");
+
 
     c0->SaveAs("pt_truth_reco.ps");
     delete c0;
+    delete newHist;
+    delete div;
 
     TH1F *gen5=(TH1F*) gDirectory->Get("pt_truth_1");
     TH1F *gen4=(TH1F*) gDirectory->Get("pt_reco_1");
@@ -309,10 +386,16 @@ void prettify() {
 
     gen5->GetXaxis()->SetRange(xmin, xmax);
 
+    gen5->Sumw2();
+    gen4->Sumw2();
+
     Double_t scale4 = 1/gen4->Integral();
     gen4->Scale(scale4);
     Double_t scale5 = 1/gen5->Integral();
     gen5->Scale(scale5);
+
+    gen5->Sumw2();
+    gen4->Sumw2();
 
     gen5->SetMaximum(0.1);
     gen5->SetMinimum(0.);
@@ -341,21 +424,47 @@ void prettify() {
     pad2->cd();
     gen5->SetStats(0);
     gen5->SetTitle("");
-    gen5->Divide(gen4);
-    gen5->Sumw2();
     Int_t size_hist = gen5->GetSize() - 2;
-    gen5->SetMaximum(1.5);
-    gen5->SetMinimum(0.5);
-    gen5->SetMarkerStyle(21);
-    gen5->GetXaxis()->SetTitle("");
-    gen5->GetXaxis()->SetLabelOffset(100);
-    gen5->GetYaxis()->SetTitle("Truth/Reco");
-    gen5->GetYaxis()->SetTitleSize(0.06);
-    gen5->GetYaxis()->SetTitleOffset(0.5);
-    gen5->DrawCopy("ep");
+    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    gen5->Sumw2();
+    gen4->Sumw2();
+    div->Divide(gen5, gen4);
+    div->Sumw2();
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    for(int iBin = 1; iBin <= size_hist; ++iBin){
+
+      float binUnc = div->GetBinError(iBin);
+
+      newHist->SetBinContent(iBin, 1);
+      newHist->SetBinError(iBin, binUnc);
+
+      div->SetBinError(iBin, 0);
+
+    }
+
+    // this makes a bright yellow error band
+    newHist->GetYaxis()->SetTitle("Truth/Reco");
+    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleOffset(0.5);
+    newHist->GetXaxis()->SetTitle("");
+    newHist->SetMaximum(2.0);
+    newHist->SetMinimum(0.0);
+    newHist->SetFillStyle(1001);
+    newHist->SetLineColor(kYellow-7);
+    newHist->SetFillColor(kYellow-7);
+    newHist->SetLineWidth(0);
+    newHist->SetMarkerStyle(0);
+    newHist->SetStats(0);
+    newHist->DrawCopy("E2");
+
+    div->SetMarkerStyle(21);
+    div->SetMarkerColor(1);
+    div->DrawCopy("same ep");
 
     c0->SaveAs("leading_pt_truth_reco.ps");
     delete c0;
+    delete newHist;
+    delete div;
 
     TH1F *gen5=(TH1F*) gDirectory->Get("pt_truth_2");
     TH1F *gen4=(TH1F*) gDirectory->Get("pt_reco_2");
@@ -368,10 +477,16 @@ void prettify() {
 
     gen5->GetXaxis()->SetRange(xmin, xmax);
 
+    gen5->Sumw2();
+    gen4->Sumw2();
+
     Double_t scale4 = 1/gen4->Integral();
     gen4->Scale(scale4);
     Double_t scale5 = 1/gen5->Integral();
     gen5->Scale(scale5);
+
+    gen5->Sumw2();
+    gen4->Sumw2();
 
     gen5->SetMaximum(0.1);
     gen5->SetMinimum(0.);
@@ -400,21 +515,47 @@ void prettify() {
     pad2->cd();
     gen5->SetStats(0);
     gen5->SetTitle("");
-    gen5->Divide(gen4);
-    gen5->Sumw2();
     Int_t size_hist = gen5->GetSize() - 2;
-    gen5->SetMaximum(1.5);
-    gen5->SetMinimum(0.5);
-    gen5->SetMarkerStyle(21);
-    gen5->GetXaxis()->SetTitle("");
-    gen5->GetXaxis()->SetLabelOffset(100);
-    gen5->GetYaxis()->SetTitle("Truth/Reco");
-    gen5->GetYaxis()->SetTitleSize(0.06);
-    gen5->GetYaxis()->SetTitleOffset(0.5);
-    gen5->DrawCopy("ep");
+    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    gen5->Sumw2();
+    gen4->Sumw2();
+    div->Divide(gen5, gen4);
+    div->Sumw2();
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    for(int iBin = 1; iBin <= size_hist; ++iBin){
+
+      float binUnc = div->GetBinError(iBin);
+
+      newHist->SetBinContent(iBin, 1);
+      newHist->SetBinError(iBin, binUnc);
+
+      div->SetBinError(iBin, 0);
+
+    }
+
+    // this makes a bright yellow error band
+    newHist->GetYaxis()->SetTitle("Truth/Reco");
+    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleOffset(0.5);
+    newHist->GetXaxis()->SetTitle("");
+    newHist->SetMaximum(2.0);
+    newHist->SetMinimum(0.0);
+    newHist->SetFillStyle(1001);
+    newHist->SetLineColor(kYellow-7);
+    newHist->SetFillColor(kYellow-7);
+    newHist->SetLineWidth(0);
+    newHist->SetMarkerStyle(0);
+    newHist->SetStats(0);
+    newHist->DrawCopy("E2");
+
+    div->SetMarkerStyle(21);
+    div->SetMarkerColor(1);
+    div->DrawCopy("same ep");
 
     c0->SaveAs("subleading_pt_truth_reco.ps");
     delete c0;
+    delete newHist;
+    delete div;
 
     TH1F *gen5=(TH1F*) gDirectory->Get("eta_truth");
     TH1F *gen4=(TH1F*) gDirectory->Get("eta_reco");
@@ -427,10 +568,16 @@ void prettify() {
 
     gen5->GetXaxis()->SetRange(xmin, xmax);
 
+    gen5->Sumw2();
+    gen4->Sumw2();
+
     Double_t scale4 = 1/gen4->Integral();
     gen4->Scale(scale4);
     Double_t scale5 = 1/gen5->Integral();
     gen5->Scale(scale5);
+
+    gen5->Sumw2();
+    gen4->Sumw2();
 
     gen5->SetMaximum(0.1);
     gen5->SetMinimum(0.);
@@ -459,21 +606,47 @@ void prettify() {
     pad2->cd();
     gen5->SetStats(0);
     gen5->SetTitle("");
-    gen5->Divide(gen4);
-    gen5->Sumw2();
     Int_t size_hist = gen5->GetSize() - 2;
-    gen5->SetMaximum(1.5);
-    gen5->SetMinimum(0.5);
-    gen5->SetMarkerStyle(21);
-    gen5->GetXaxis()->SetTitle("");
-    gen5->GetXaxis()->SetLabelOffset(100);
-    gen5->GetYaxis()->SetTitle("Truth/Reco");
-    gen5->GetYaxis()->SetTitleSize(0.06);
-    gen5->GetYaxis()->SetTitleOffset(0.5);
-    gen5->DrawCopy("ep");
+    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    gen5->Sumw2();
+    gen4->Sumw2();
+    div->Divide(gen5, gen4);
+    div->Sumw2();
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    for(int iBin = 1; iBin <= size_hist; ++iBin){
+
+      float binUnc = div->GetBinError(iBin);
+
+      newHist->SetBinContent(iBin, 1);
+      newHist->SetBinError(iBin, binUnc);
+
+      div->SetBinError(iBin, 0);
+
+    }
+
+    // this makes a bright yellow error band
+    newHist->GetYaxis()->SetTitle("Truth/Reco");
+    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleOffset(0.5);
+    newHist->GetXaxis()->SetTitle("");
+    newHist->SetMaximum(2.0);
+    newHist->SetMinimum(0.0);
+    newHist->SetFillStyle(1001);
+    newHist->SetLineColor(kYellow-7);
+    newHist->SetFillColor(kYellow-7);
+    newHist->SetLineWidth(0);
+    newHist->SetMarkerStyle(0);
+    newHist->SetStats(0);
+    newHist->DrawCopy("E2");
+
+    div->SetMarkerStyle(21);
+    div->SetMarkerColor(1);
+    div->DrawCopy("same ep");
 
     c0->SaveAs("eta_truth_reco.ps");
     delete c0;
+    delete newHist;
+    delete div;
 
     TH1F *gen5=(TH1F*) gDirectory->Get("eta_truth_1");
     TH1F *gen4=(TH1F*) gDirectory->Get("eta_reco_1");
@@ -486,10 +659,16 @@ void prettify() {
 
     gen5->GetXaxis()->SetRange(xmin, xmax);
 
+    gen5->Sumw2();
+    gen4->Sumw2();
+
     Double_t scale4 = 1/gen4->Integral();
     gen4->Scale(scale4);
     Double_t scale5 = 1/gen5->Integral();
     gen5->Scale(scale5);
+
+    gen5->Sumw2();
+    gen4->Sumw2();
 
     gen5->SetMaximum(0.1);
     gen5->SetMinimum(0.);
@@ -518,21 +697,47 @@ void prettify() {
     pad2->cd();
     gen5->SetStats(0);
     gen5->SetTitle("");
-    gen5->Divide(gen4);
-    gen5->Sumw2();
     Int_t size_hist = gen5->GetSize() - 2;
-    gen5->SetMaximum(1.5);
-    gen5->SetMinimum(0.5);
-    gen5->SetMarkerStyle(21);
-    gen5->GetXaxis()->SetTitle("");
-    gen5->GetXaxis()->SetLabelOffset(100);
-    gen5->GetYaxis()->SetTitle("Truth/Reco");
-    gen5->GetYaxis()->SetTitleSize(0.06);
-    gen5->GetYaxis()->SetTitleOffset(0.5);
-    gen5->DrawCopy("ep");
+    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    gen5->Sumw2();
+    gen4->Sumw2();
+    div->Divide(gen5, gen4);
+    div->Sumw2();
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    for(int iBin = 1; iBin <= size_hist; ++iBin){
+
+      float binUnc = div->GetBinError(iBin);
+
+      newHist->SetBinContent(iBin, 1);
+      newHist->SetBinError(iBin, binUnc);
+
+      div->SetBinError(iBin, 0);
+
+    }
+
+    // this makes a bright yellow error band
+    newHist->GetYaxis()->SetTitle("Truth/Reco");
+    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleOffset(0.5);
+    newHist->GetXaxis()->SetTitle("");
+    newHist->SetMaximum(2.0);
+    newHist->SetMinimum(0.0);
+    newHist->SetFillStyle(1001);
+    newHist->SetLineColor(kYellow-7);
+    newHist->SetFillColor(kYellow-7);
+    newHist->SetLineWidth(0);
+    newHist->SetMarkerStyle(0);
+    newHist->SetStats(0);
+    newHist->DrawCopy("E2");
+
+    div->SetMarkerStyle(21);
+    div->SetMarkerColor(1);
+    div->DrawCopy("same ep");
 
     c0->SaveAs("leading_eta_truth_reco.ps");
     delete c0;
+    delete newHist;
+    delete div;
 
     TH1F *gen5=(TH1F*) gDirectory->Get("eta_truth_2");
     TH1F *gen4=(TH1F*) gDirectory->Get("eta_reco_2");
@@ -545,10 +750,16 @@ void prettify() {
 
     gen5->GetXaxis()->SetRange(xmin, xmax);
 
+    gen5->Sumw2();
+    gen4->Sumw2();
+
     Double_t scale4 = 1/gen4->Integral();
     gen4->Scale(scale4);
     Double_t scale5 = 1/gen5->Integral();
     gen5->Scale(scale5);
+
+    gen5->Sumw2();
+    gen4->Sumw2();
 
     gen5->SetMaximum(0.1);
     gen5->SetMinimum(0.);
@@ -577,21 +788,47 @@ void prettify() {
     pad2->cd();
     gen5->SetStats(0);
     gen5->SetTitle("");
-    gen5->Divide(gen4);
-    gen5->Sumw2();
     Int_t size_hist = gen5->GetSize() - 2;
-    gen5->SetMaximum(1.5);
-    gen5->SetMinimum(0.5);
-    gen5->SetMarkerStyle(21);
-    gen5->GetXaxis()->SetTitle("");
-    gen5->GetXaxis()->SetLabelOffset(100);
-    gen5->GetYaxis()->SetTitle("Truth/Reco");
-    gen5->GetYaxis()->SetTitleSize(0.06);
-    gen5->GetYaxis()->SetTitleOffset(0.5);
-    gen5->DrawCopy("ep");
+    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    gen5->Sumw2();
+    gen4->Sumw2();
+    div->Divide(gen5, gen4);
+    div->Sumw2();
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    for(int iBin = 1; iBin <= size_hist; ++iBin){
+
+      float binUnc = div->GetBinError(iBin);
+
+      newHist->SetBinContent(iBin, 1);
+      newHist->SetBinError(iBin, binUnc);
+
+      div->SetBinError(iBin, 0);
+
+    }
+
+    // this makes a bright yellow error band
+    newHist->GetYaxis()->SetTitle("Truth/Reco");
+    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleOffset(0.5);
+    newHist->GetXaxis()->SetTitle("");
+    newHist->SetMaximum(2.0);
+    newHist->SetMinimum(0.0);
+    newHist->SetFillStyle(1001);
+    newHist->SetLineColor(kYellow-7);
+    newHist->SetFillColor(kYellow-7);
+    newHist->SetLineWidth(0);
+    newHist->SetMarkerStyle(0);
+    newHist->SetStats(0);
+    newHist->DrawCopy("E2");
+
+    div->SetMarkerStyle(21);
+    div->SetMarkerColor(1);
+    div->DrawCopy("same ep");
 
     c0->SaveAs("subleading_eta_truth_reco.ps");
     delete c0;
+    delete newHist;
+    delete div;
 
     TH1F *gen5=(TH1F*) gDirectory->Get("ht_truth");
     TH1F *gen4=(TH1F*) gDirectory->Get("ht_reco");
@@ -604,10 +841,16 @@ void prettify() {
 
     gen5->GetXaxis()->SetRange(xmin, xmax);
 
+    gen5->Sumw2();
+    gen4->Sumw2();
+
     Double_t scale4 = 1/gen4->Integral();
     gen4->Scale(scale4);
     Double_t scale5 = 1/gen5->Integral();
     gen5->Scale(scale5);
+
+    gen5->Sumw2();
+    gen4->Sumw2();
 
     gen5->SetMaximum(0.15);
     gen5->SetMinimum(0.);
@@ -636,21 +879,47 @@ void prettify() {
     pad2->cd();
     gen5->SetStats(0);
     gen5->SetTitle("");
-    gen5->Divide(gen4);
-    gen5->Sumw2();
     Int_t size_hist = gen5->GetSize() - 2;
-    gen5->SetMaximum(1.5);
-    gen5->SetMinimum(0.5);
-    gen5->SetMarkerStyle(21);
-    gen5->GetXaxis()->SetTitle("");
-    gen5->GetXaxis()->SetLabelOffset(100);
-    gen5->GetYaxis()->SetTitle("Truth/Reco");
-    gen5->GetYaxis()->SetTitleSize(0.06);
-    gen5->GetYaxis()->SetTitleOffset(0.5);
-    gen5->DrawCopy("ep");
+    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    gen5->Sumw2();
+    gen4->Sumw2();
+    div->Divide(gen5, gen4);
+    div->Sumw2();
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    for(int iBin = 1; iBin <= size_hist; ++iBin){
+
+      float binUnc = div->GetBinError(iBin);
+
+      newHist->SetBinContent(iBin, 1);
+      newHist->SetBinError(iBin, binUnc);
+
+      div->SetBinError(iBin, 0);
+
+    }
+
+    // this makes a bright yellow error band
+    newHist->GetYaxis()->SetTitle("Truth/Reco");
+    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleOffset(0.5);
+    newHist->GetXaxis()->SetTitle("");
+    newHist->SetMaximum(2.0);
+    newHist->SetMinimum(0.0);
+    newHist->SetFillStyle(1001);
+    newHist->SetLineColor(kYellow-7);
+    newHist->SetFillColor(kYellow-7);
+    newHist->SetLineWidth(0);
+    newHist->SetMarkerStyle(0);
+    newHist->SetStats(0);
+    newHist->DrawCopy("E2");
+
+    div->SetMarkerStyle(21);
+    div->SetMarkerColor(1);
+    div->DrawCopy("same ep");
 
     c0->SaveAs("ht_truth_reco.ps");
     delete c0;
+    delete newHist;
+    delete div;
 
     TH1F *gen5=(TH1F*) gDirectory->Get("n_truth");
     TH1F *gen4=(TH1F*) gDirectory->Get("n_reco");
@@ -663,10 +932,16 @@ void prettify() {
 
     gen5->GetXaxis()->SetRange(xmin, xmax);
 
+    gen5->Sumw2();
+    gen4->Sumw2();
+
     Double_t scale4 = 1/gen4->Integral();
     gen4->Scale(scale4);
     Double_t scale5 = 1/gen5->Integral();
     gen5->Scale(scale5);
+
+    gen5->Sumw2();
+    gen4->Sumw2();
 
     gen5->SetMaximum(0.4);
     gen5->SetMinimum(0.);
@@ -695,22 +970,47 @@ void prettify() {
     pad2->cd();
     gen5->SetStats(0);
     gen5->SetTitle("");
-    gen5->Divide(gen4);
-    gen5->Sumw2();
     Int_t size_hist = gen5->GetSize() - 2;
-    gen5->SetMaximum(1.5);
-    gen5->SetMinimum(0.5);
-    gen5->SetMarkerStyle(21);
-    gen5->GetXaxis()->SetTitle("");
-    gen5->GetXaxis()->SetLabelOffset(100);
-    gen5->GetYaxis()->SetTitle("Truth/Reco");
-    gen5->GetYaxis()->SetTitleSize(0.06);
-    gen5->GetYaxis()->SetTitleOffset(0.5);
-    gen5->DrawCopy("ep");
+    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    gen5->Sumw2();
+    gen4->Sumw2();
+    div->Divide(gen5, gen4);
+    div->Sumw2();
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    for(int iBin = 1; iBin <= size_hist; ++iBin){
+
+      float binUnc = div->GetBinError(iBin);
+
+      newHist->SetBinContent(iBin, 1);
+      newHist->SetBinError(iBin, binUnc);
+
+      div->SetBinError(iBin, 0);
+
+    }
+
+    // this makes a bright yellow error band
+    newHist->GetYaxis()->SetTitle("Truth/Reco");
+    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleOffset(0.5);
+    newHist->GetXaxis()->SetTitle("");
+    newHist->SetMaximum(2.0);
+    newHist->SetMinimum(0.0);
+    newHist->SetFillStyle(1001);
+    newHist->SetLineColor(kYellow-7);
+    newHist->SetFillColor(kYellow-7);
+    newHist->SetLineWidth(0);
+    newHist->SetMarkerStyle(0);
+    newHist->SetStats(0);
+    newHist->DrawCopy("E2");
+
+    div->SetMarkerStyle(21);
+    div->SetMarkerColor(1);
+    div->DrawCopy("same ep");
 
     c0->SaveAs("njet_truth_reco.ps");
     delete c0;
-
+    delete newHist;
+    delete div;
 
     gROOT->ProcessLine(".q");
 
