@@ -14,8 +14,8 @@ int main() {
     TTree *recoTree = (TTree*)recoFile->Get("mini");
     TChain *truthTree = new TChain("truth");
 
-    //truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._*.pool.root");
-    truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._000001.pool.root");
+    truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._*.pool.root");
+//    truthTree->Add("/afs/phas.gla.ac.uk/user/k/knordstrom/data/truth/ntup/EVNT.00983679._000001.pool.root");
 
     TFile *outputFile = new TFile("~/output/comparedata.root", "RECREATE");
 
