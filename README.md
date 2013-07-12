@@ -26,7 +26,17 @@ The makefile
 
 As explained above you need to specify the path to your boost headers in the makefile.
 You also need to set MY_LD_LIBRARY_PATH to a location that is in your LD_LIBRARY_PATH
-(or just change LD_LIBRARY_PATH to include $(pwd)/lib).
+(or just change LD_LIBRARY_PATH to include $(pwd)/lib as explained below).
+
+If you set MY_LD_LIBRARY_PATH to a location that is protected (you need super user
+rights to write to it) you'll have to `sudo make`: depending on your privileges you
+might not be able to do so, or your super user environment is incorrectly set up to
+do it anyway. In that case just change LD_LIBRARY_PATH instead by doing:
+
+`export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/$(pwd)/lib`
+
+which should set things up correctly. You can add this to your .bashrc/equivalent file in your home
+directory if you don't want to do it manually every time you use the code.
 
 ===========================
 
