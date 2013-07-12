@@ -185,6 +185,7 @@ void prettify() {
 
     gen6->Divide(gen7);
     gen6->Sumw2();
+    Double_t scale6 = 1/gen6->Integral();
     gen6->SetStats(0);
     gen6->SetTitle("Average |dp_{T}| as a function of p_{T}^{truth} for matched jet pairs");
 
@@ -194,13 +195,54 @@ void prettify() {
 
     gen6->Draw();
 
-    TF1 *sqroot= new TF1("sqroot", "sqrt(0.35*x) + 1.7", 0, 250);
-    sqroot->Draw("same");
+    TF1 *myfit = new TF1("myfit","[0]*sqrt(x) + [1]", 25, 175);
+//    TF1 *sqroot= new TF1("sqroot", "0.6*sqrt(x) + 1.7", 25, 250);
+//    sqroot->Draw("same");
+    myfit->SetParameter(0, 0.5);
+    myfit->SetParameter(1, 2);
+    gen6->Fit("myfit", "ILWMEr");
+    TF1 *git = gen6->GetFunction("myfit");
+
+    Double_t g0 = git->GetParameter(0);
+    Double_t g1 = git->GetParameter(1);
+//    Double_t gchi2 = scale6 * git->GetChisquare();
+    Double_t gchi2 = git->GetChisquare();
+    Double_t gdof = git->GetNDF();
+
+    char name[250];
+
+    char number[10];
+    sprintf(number, "%.1f", (double)g0);
+    strcpy (name, "");
+    strcat (name, number);
+    strcat (name, " #times #sqrt{p_{T}^{truth}} + ");
+    sprintf(number, "%.1f", (double)g1);
+    strcat (name, number);
 
     leg_hist = new TLegend(0.5,0.13,0.79,0.33);
     leg_hist->AddEntry(gen6,"Average |dp_{T}|","l");
-    leg_hist->AddEntry(gen5,"0.6 #times #sqrt{p_{T}^{truth}} + 1.7","l");
+//    leg_hist->AddEntry(gen5,"0.6 #times #sqrt{p_{T}^{truth}} + 1.7","l");
+    leg_hist->AddEntry(gen5,name,"l");
     leg_hist->Draw();
+
+    char gchi[250];
+    sprintf(number, "%.5f", (double)gchi2);
+    strcpy (gchi, "");
+    strcat (gchi, "Fit #Chi^{2} = ");
+    strcat (gchi, number);
+
+    char gndf[250];
+    sprintf(number, "%d", (double)gdof);
+    strcpy (gndf, "");
+    strcat (gndf, "Fit N_{DOF} = ");
+    strcat (gndf, number);
+
+    TLatex *latex = new TLatex();
+    latex->SetNDC();
+    latex->SetTextSize(0.04);
+    latex->DrawLatex(0.25,0.65, gchi);
+    latex->DrawLatex(0.25,0.6, gndf);
+
 
     c1->SaveAs("average_dpt.ps");
 
@@ -248,22 +290,37 @@ void prettify() {
     TH1F *gen6=(TH1F*) gDirectory->Get("dpT_jet");
     gen6->SetStats(1);
     gen6->SetTitle("dp_{T} for matched jet pairs");
+    //gen6->GetXaxis()->SetRangeUser(-20,22);
 
     gen6->GetXaxis()->SetTitle("dp_{T} [GeV]");
     gen6->GetYaxis()->SetTitle("Number of jets");
     gen6->GetYaxis()->SetTitleOffset(1.5);
     gen6->Sumw2();
+    Double_t scale6 = 1/gen6->Integral();
+//    gen6->Scale(scale6);
+//    gen6->Sumw2();
 
-    gen6->Fit("gaus");
-    TF1 *fit = gen6->GetFunction("gaus");
+//p0*exp(-0.5*((x-p1)/p2)^2))
+
+    TF1 *myfit = new TF1("myfit","[0]*exp(-0.5 * ((x-[1])/[2])^2)", -15, 18);
+//    TF1 *sqroot= new TF1("sqroot", "0.6*sqrt(x) + 1.7", 25, 250);
+//    sqroot->Draw("same");
+    myfit->SetParameter(0, gen6->GetMaximum());
+    myfit->SetParameter(1, 2);
+    myfit->SetParameter(2, 4);
+
+    gen6->Fit("myfit", "ILWMEr");
+    TF1 *fit = gen6->GetFunction("myfit");
     Double_t p0 = fit->GetParameter(0);
     Double_t p1 = fit->GetParameter(1);
     Double_t p2 = 2 * fit->GetParameter(2);
+    Double_t chi2 = fit->GetChisquare();
+    Double_t dof = fit->GetNDF();
 
     char name[250];
 
     char number[10];
-    sprintf(number, "%d", (double)p0);
+    sprintf(number, "%.2f", (double)p0);
     strcpy (name, "");
     strcat (name, number);
     strcat (name, " e^{- #left(#frac{x - ");
@@ -275,6 +332,25 @@ void prettify() {
     strcat (name, "} #right)^{2}}");
 
     gen6->Draw();
+
+
+    char chi[250];
+    sprintf(number, "%.5f", (double)chi2);
+    strcpy (chi, "");
+    strcat (chi, "Fit #Chi^{2} = ");
+    strcat (chi, number);
+
+    char ndf[250];
+    sprintf(number, "%d", (double)dof);
+    strcpy (ndf, "");
+    strcat (ndf, "Fit N_{DOF} = ");
+    strcat (ndf, number);
+
+    TLatex *latex = new TLatex();
+    latex->SetNDC();
+    latex->SetTextSize(0.04);
+    latex->DrawLatex(0.15,0.65, chi);
+    latex->DrawLatex(0.15,0.6, ndf);
 
     leg_hist = new TLegend(0.6,0.45,0.89,0.60);
     leg_hist->AddEntry(gen6,"dp_{T}","l");
@@ -310,7 +386,12 @@ void prettify() {
 
     gen5->GetXaxis()->SetTitle(" p_{T}^{jet} [GeV]");
     gen5->GetYaxis()->SetTitle(" Relative Occurence ");
-    gen5->GetYaxis()->SetTitleOffset(1.3);
+    gen5->GetYaxis()->SetTitleOffset(1.0);
+    gen5->GetXaxis()->SetTitleOffset(0.85);
+    gen5->GetYaxis()->SetLabelSize(0.05);
+    gen5->GetYaxis()->SetTitleSize(0.05);
+    gen5->GetXaxis()->SetLabelSize(0.05);
+    gen5->GetXaxis()->SetTitleSize(0.05);
 
     TCanvas* c0 = new TCanvas("c0","",50,50,865,780);
     c0->cd();
@@ -352,9 +433,14 @@ void prettify() {
 
     // this makes a bright yellow error band
     newHist->GetYaxis()->SetTitle("Truth/Reco");
-    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleSize(0.075);
     newHist->GetYaxis()->SetTitleOffset(0.5);
     newHist->GetXaxis()->SetTitle("");
+    newHist->GetXaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetTitleOffset(0.7);
+
+    newHist->SetTitle("");
     newHist->SetMaximum(2.0);
     newHist->SetMinimum(0.0);
     newHist->SetFillStyle(1001);
@@ -402,7 +488,12 @@ void prettify() {
 
     gen5->GetXaxis()->SetTitle(" p_{T}^{j1} [GeV]");
     gen5->GetYaxis()->SetTitle(" Relative Occurence ");
-    gen5->GetYaxis()->SetTitleOffset(1.3);
+    gen5->GetYaxis()->SetTitleOffset(1.0);
+    gen5->GetXaxis()->SetTitleOffset(0.85);
+    gen5->GetYaxis()->SetLabelSize(0.05);
+    gen5->GetYaxis()->SetTitleSize(0.05);
+    gen5->GetXaxis()->SetLabelSize(0.05);
+    gen5->GetXaxis()->SetTitleSize(0.05);
 
     TCanvas* c0 = new TCanvas("c0","",50,50,865,780);
     c0->cd();
@@ -444,9 +535,14 @@ void prettify() {
 
     // this makes a bright yellow error band
     newHist->GetYaxis()->SetTitle("Truth/Reco");
-    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleSize(0.075);
     newHist->GetYaxis()->SetTitleOffset(0.5);
     newHist->GetXaxis()->SetTitle("");
+    newHist->GetXaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetTitleOffset(0.7);
+
+    newHist->SetTitle("");
     newHist->SetMaximum(2.0);
     newHist->SetMinimum(0.0);
     newHist->SetFillStyle(1001);
@@ -493,7 +589,12 @@ void prettify() {
 
     gen5->GetXaxis()->SetTitle(" p_{T}^{j2} [GeV]");
     gen5->GetYaxis()->SetTitle(" Relative Occurence ");
-    gen5->GetYaxis()->SetTitleOffset(1.3);
+    gen5->GetYaxis()->SetTitleOffset(1.0);
+    gen5->GetXaxis()->SetTitleOffset(0.85);
+    gen5->GetYaxis()->SetLabelSize(0.05);
+    gen5->GetYaxis()->SetTitleSize(0.05);
+    gen5->GetXaxis()->SetLabelSize(0.05);
+    gen5->GetXaxis()->SetTitleSize(0.05);
 
     TCanvas* c0 = new TCanvas("c0","",50,50,865,780);
     c0->cd();
@@ -535,9 +636,14 @@ void prettify() {
 
     // this makes a bright yellow error band
     newHist->GetYaxis()->SetTitle("Truth/Reco");
-    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleSize(0.075);
     newHist->GetYaxis()->SetTitleOffset(0.5);
     newHist->GetXaxis()->SetTitle("");
+    newHist->GetXaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetTitleOffset(0.7);
+
+    newHist->SetTitle("");
     newHist->SetMaximum(2.0);
     newHist->SetMinimum(0.0);
     newHist->SetFillStyle(1001);
@@ -584,7 +690,12 @@ void prettify() {
 
     gen5->GetXaxis()->SetTitle(" #eta ");
     gen5->GetYaxis()->SetTitle(" Relative Occurence ");
-    gen5->GetYaxis()->SetTitleOffset(1.3);
+    gen5->GetYaxis()->SetTitleOffset(1.0);
+    gen5->GetXaxis()->SetTitleOffset(0.85);
+    gen5->GetYaxis()->SetLabelSize(0.05);
+    gen5->GetYaxis()->SetTitleSize(0.05);
+    gen5->GetXaxis()->SetLabelSize(0.05);
+    gen5->GetXaxis()->SetTitleSize(0.05);
 
     TCanvas* c0 = new TCanvas("c0","",50,50,865,780);
     c0->cd();
@@ -607,12 +718,12 @@ void prettify() {
     gen5->SetStats(0);
     gen5->SetTitle("");
     Int_t size_hist = gen5->GetSize() - 2;
-    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    TH1F* div= new TH1F("div", "divded", size_hist, -3, 3);
     gen5->Sumw2();
     gen4->Sumw2();
     div->Divide(gen5, gen4);
     div->Sumw2();
-    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, -3, 3);
     for(int iBin = 1; iBin <= size_hist; ++iBin){
 
       float binUnc = div->GetBinError(iBin);
@@ -626,9 +737,14 @@ void prettify() {
 
     // this makes a bright yellow error band
     newHist->GetYaxis()->SetTitle("Truth/Reco");
-    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleSize(0.075);
     newHist->GetYaxis()->SetTitleOffset(0.5);
     newHist->GetXaxis()->SetTitle("");
+    newHist->GetXaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetTitleOffset(0.7);
+
+    newHist->SetTitle("");
     newHist->SetMaximum(2.0);
     newHist->SetMinimum(0.0);
     newHist->SetFillStyle(1001);
@@ -675,7 +791,12 @@ void prettify() {
 
     gen5->GetXaxis()->SetTitle(" #eta^{j1} ");
     gen5->GetYaxis()->SetTitle(" Relative Occurence ");
-    gen5->GetYaxis()->SetTitleOffset(1.3);
+    gen5->GetYaxis()->SetTitleOffset(1.0);
+    gen5->GetXaxis()->SetTitleOffset(0.85);
+    gen5->GetYaxis()->SetLabelSize(0.05);
+    gen5->GetYaxis()->SetTitleSize(0.05);
+    gen5->GetXaxis()->SetLabelSize(0.05);
+    gen5->GetXaxis()->SetTitleSize(0.05);
 
     TCanvas* c0 = new TCanvas("c0","",50,50,865,780);
     c0->cd();
@@ -698,12 +819,12 @@ void prettify() {
     gen5->SetStats(0);
     gen5->SetTitle("");
     Int_t size_hist = gen5->GetSize() - 2;
-    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    TH1F* div= new TH1F("div", "divded", size_hist, -3, 3);
     gen5->Sumw2();
     gen4->Sumw2();
     div->Divide(gen5, gen4);
     div->Sumw2();
-    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, -3, 3);
     for(int iBin = 1; iBin <= size_hist; ++iBin){
 
       float binUnc = div->GetBinError(iBin);
@@ -717,9 +838,14 @@ void prettify() {
 
     // this makes a bright yellow error band
     newHist->GetYaxis()->SetTitle("Truth/Reco");
-    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleSize(0.075);
     newHist->GetYaxis()->SetTitleOffset(0.5);
     newHist->GetXaxis()->SetTitle("");
+    newHist->GetXaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetTitleOffset(0.7);
+
+    newHist->SetTitle("");
     newHist->SetMaximum(2.0);
     newHist->SetMinimum(0.0);
     newHist->SetFillStyle(1001);
@@ -766,7 +892,12 @@ void prettify() {
 
     gen5->GetXaxis()->SetTitle(" #eta^{j2} ");
     gen5->GetYaxis()->SetTitle(" Relative Occurence ");
-    gen5->GetYaxis()->SetTitleOffset(1.3);
+    gen5->GetYaxis()->SetTitleOffset(1.0);
+    gen5->GetXaxis()->SetTitleOffset(0.85);
+    gen5->GetYaxis()->SetLabelSize(0.05);
+    gen5->GetYaxis()->SetTitleSize(0.05);
+    gen5->GetXaxis()->SetLabelSize(0.05);
+    gen5->GetXaxis()->SetTitleSize(0.05);
 
     TCanvas* c0 = new TCanvas("c0","",50,50,865,780);
     c0->cd();
@@ -789,12 +920,12 @@ void prettify() {
     gen5->SetStats(0);
     gen5->SetTitle("");
     Int_t size_hist = gen5->GetSize() - 2;
-    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    TH1F* div= new TH1F("div", "divded", size_hist, -3, 3);
     gen5->Sumw2();
     gen4->Sumw2();
     div->Divide(gen5, gen4);
     div->Sumw2();
-    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, -3, 3);
     for(int iBin = 1; iBin <= size_hist; ++iBin){
 
       float binUnc = div->GetBinError(iBin);
@@ -808,9 +939,14 @@ void prettify() {
 
     // this makes a bright yellow error band
     newHist->GetYaxis()->SetTitle("Truth/Reco");
-    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleSize(0.075);
     newHist->GetYaxis()->SetTitleOffset(0.5);
     newHist->GetXaxis()->SetTitle("");
+    newHist->GetXaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetTitleOffset(0.7);
+
+    newHist->SetTitle("");
     newHist->SetMaximum(2.0);
     newHist->SetMinimum(0.0);
     newHist->SetFillStyle(1001);
@@ -857,7 +993,13 @@ void prettify() {
 
     gen5->GetXaxis()->SetTitle(" HT [GeV] ");
     gen5->GetYaxis()->SetTitle(" Relative Occurence ");
-    gen5->GetYaxis()->SetTitleOffset(1.3);
+    gen5->GetYaxis()->SetTitleOffset(1.0);
+    gen5->GetXaxis()->SetTitleOffset(0.85);
+    gen5->GetYaxis()->SetLabelSize(0.05);
+    gen5->GetYaxis()->SetTitleSize(0.05);
+    gen5->GetXaxis()->SetLabelSize(0.05);
+    gen5->GetXaxis()->SetTitleSize(0.05);
+    gen5->GetXaxis()->SetRangeUser(0,800);
 
     TCanvas* c0 = new TCanvas("c0","",50,50,865,780);
     c0->cd();
@@ -880,12 +1022,12 @@ void prettify() {
     gen5->SetStats(0);
     gen5->SetTitle("");
     Int_t size_hist = gen5->GetSize() - 2;
-    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    TH1F* div= new TH1F("div", "divded", size_hist, 0, 800);
     gen5->Sumw2();
     gen4->Sumw2();
     div->Divide(gen5, gen4);
     div->Sumw2();
-    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 800);
     for(int iBin = 1; iBin <= size_hist; ++iBin){
 
       float binUnc = div->GetBinError(iBin);
@@ -899,9 +1041,14 @@ void prettify() {
 
     // this makes a bright yellow error band
     newHist->GetYaxis()->SetTitle("Truth/Reco");
-    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleSize(0.075);
     newHist->GetYaxis()->SetTitleOffset(0.5);
     newHist->GetXaxis()->SetTitle("");
+    newHist->GetXaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetTitleOffset(0.7);
+
+    newHist->SetTitle("");
     newHist->SetMaximum(2.0);
     newHist->SetMinimum(0.0);
     newHist->SetFillStyle(1001);
@@ -948,7 +1095,12 @@ void prettify() {
 
     gen5->GetXaxis()->SetTitle(" n^{jets} ");
     gen5->GetYaxis()->SetTitle(" Relative Occurence ");
-    gen5->GetYaxis()->SetTitleOffset(1.3);
+    gen5->GetYaxis()->SetTitleOffset(1.0);
+    gen5->GetXaxis()->SetTitleOffset(0.85);
+    gen5->GetYaxis()->SetLabelSize(0.05);
+    gen5->GetYaxis()->SetTitleSize(0.05);
+    gen5->GetXaxis()->SetLabelSize(0.05);
+    gen5->GetXaxis()->SetTitleSize(0.05);
 
     TCanvas* c0 = new TCanvas("c0","",50,50,865,780);
     c0->cd();
@@ -971,12 +1123,12 @@ void prettify() {
     gen5->SetStats(0);
     gen5->SetTitle("");
     Int_t size_hist = gen5->GetSize() - 2;
-    TH1F* div= new TH1F("div", "divded", size_hist, 0, 250);
+    TH1F* div= new TH1F("div", "divded", size_hist, 0, 10);
     gen5->Sumw2();
     gen4->Sumw2();
     div->Divide(gen5, gen4);
     div->Sumw2();
-    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 250);
+    TH1F* newHist = new TH1F("newHist", "error", size_hist, 0, 10);
     for(int iBin = 1; iBin <= size_hist; ++iBin){
 
       float binUnc = div->GetBinError(iBin);
@@ -990,9 +1142,14 @@ void prettify() {
 
     // this makes a bright yellow error band
     newHist->GetYaxis()->SetTitle("Truth/Reco");
-    newHist->GetYaxis()->SetTitleSize(0.06);
+    newHist->GetYaxis()->SetTitleSize(0.075);
     newHist->GetYaxis()->SetTitleOffset(0.5);
     newHist->GetXaxis()->SetTitle("");
+    newHist->GetXaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetLabelSize(0.075);
+    newHist->GetYaxis()->SetTitleOffset(0.7);
+
+    newHist->SetTitle("");
     newHist->SetMaximum(2.0);
     newHist->SetMinimum(0.0);
     newHist->SetFillStyle(1001);
