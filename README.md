@@ -83,7 +83,7 @@ Installing the `plotter` tool
 -----------------------------
 
 The `plotter` is a simple event visualiser written in C++ that converts a basic text format into \latex,
-which is then compiled using Rivet's make-plots python script. The reason is that I was too lazy to
+which is then compiled using Rivet's `make-plots` python script. The reason is that I was too lazy to
 write the \latex stuff from scratch and kind of piggybacked on make-plots to provide the basic canvas and
 coordinate system. If you use the scripts in ./plots/ it should just *work*, but in case (when) it doesn't:
 
@@ -93,7 +93,7 @@ open the source file in a text editor... There are instructions at the beginning
 Once you have the data file, run the plotter on it, specifying what you want to plot. Usually you want to give
 RT as the first argument (this means you are comparing truth to reconstructed). The alternatives are T3 (only
 plot truth) and R (only plot reconstructed). The second argument is which quantity you want to weight the marker
-sizes by: a lot of stuff is supported, but the two most common ones to use are probably pt and constant. So an example
+sizes by: many four momentum properties are supported, but the two most common ones to use are probably pt and constant. So an example
 call would be:
 
 `plotter raw_data RT constant`
@@ -102,8 +102,10 @@ Now this will print the \latex file to your standard output, so you have to redi
 
 `plotter raw_data RT constant > plot.dat`
 
-Now you can compile plot.dat by using the make-plots script:
+Now you can compile plot.dat by using the `make-plots` script:
 
 `make-plots plot.dat`
 
 which compiles the \latex document and saves it as plot.pdf.
+
+NOTE!!! `make-plots` is a part of Rivet and was probably written by Dave Mallows, all credit to the Rivet team and Dave.
