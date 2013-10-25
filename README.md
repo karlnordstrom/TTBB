@@ -108,7 +108,7 @@ call would be:
 
 `plotter raw_data RT constant`
 
-Now this will print the \latex file to your standard output, so you have to redirect it into a file of your choosing:
+Now this will print the \LaTeX file to your standard output, so you have to redirect it into a file of your choosing:
 
 `plotter raw_data RT constant > plot.dat`
 
